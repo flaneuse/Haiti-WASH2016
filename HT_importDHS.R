@@ -95,6 +95,8 @@ hh = hh %>%
          cluster_id = hv001,
          hh_num = hv002,
          sample_wt = hv005,
+         prim_sampling_unit = hv021,
+         sample_strata = hv022,
          urban = hv025,
          region = shregnew, # Note: using shregnew, not hv024, since it breaks Ouest into Aire Metropolitaine et Reste-Ouest
          interview_month = hv006,
@@ -195,6 +197,7 @@ hh = hh %>%
     # time2water = 996 == "on premises"; assumed to be < 30 min.
     impr_water_under30min = ifelse(is.na(time2water) | is.na(improved_water), NA,
                                    ifelse((time2water <= 30 | time2water == 996) & improved_water == 1, 1, 0))
+    FIX 998 / 999 codes!!
     )
 
 # clean and merge geodata -------------------------------------------------
