@@ -90,12 +90,13 @@ child = removeAttributes(child_raw)
 
 # Pull diarrhea, water-sanitation access, geo data ------------------------
 hh = hh %>% 
+  # -- Select relevant vars --
   select(hhid, 
          cluster_id = hv001,
          hh_num = hv002,
          sample_wt = hv005,
          urban = hv025,
-         region = hv024,
+         region = shregnew, # Note: using shregnew, not hv024, since it breaks Ouest into Aire Metropolitaine et Reste-Ouest
          interview_month = hv006,
          water_source = hv201, 
          time2water = hv204, 
@@ -104,11 +105,26 @@ hh = hh %>%
          num_share_toilet = hv238,
          # water_treatment = hv237, hv237a, hv237b, hv237c, hv237d, hv237e, hv237f, hv237x, hv237z, 
          wealth_idx = hv270) %>% 
-  
-  filter(region != 11) # Remove those households that were in camps, based on the assumption that they will be different than the rest of the population.
+  # -- Remove hh in camps --
+  filter(region != 12) # based on the assumption that they will be different than the rest of the population.
 
+
+# recode data -------------------------------------------------------------
+region_codes = data.frame(code = attr(hh_raw$shregnew, 'labels')) 
+region_codes = region_codes %>% 
+  mutate(region = row.names(region_codes))
+
+hh = hh %>% 
+  mutate(
+    # -- convert urban to binary --
+    urban = ifelse(urban == 1, 1, 
+                        ifelse(urban == 2, 0, NA)),
+    # -- decode regional names --
+    region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region)
+  )
 
 # classify improved/ not improved -----------------------------------------
+
 # Toilets are defined as being 'improved' if they are one of the following types and aren't shared.
 #                           toilet_type code        improved
 #                         flush toilet   10        Improved
@@ -130,7 +146,6 @@ hh = hh %>%
 #               mobile chemical toilet   45      Unimproved
 #                                other   96      Unimproved
 
-# Water sources are defined as being 'improved' if they are one of the following types and can be reached in <= 30 minutes
 
 # export types of toilets in survey
 toilet_types = attr(hh_raw$hv205, 'labels')
@@ -141,7 +156,46 @@ write.csv(water_types, '~/GitHub/Haiti-WASH2016/dataout/DHS_water_types.csv')
 
 # read in Liz Jordan's classification of whether or not a toilet or water source is improved.
 toilet_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_classification.csv')
+water_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_water_classification.csv')
+impr_water_codes = unlist(water_types %>% filter(improved == 1) %>% select(code))
+unimpr_water_codes = unlist(water_types %>% filter(improved == 0) %>% select(code))
 
+# Water sources are defined as being 'improved' if they are one of the following types and can be reached in <= 30 minutes
+#                                           watersource code improved
+#                                         piped water   10        1
+#                                 piped into dwelling   11        1
+#                                  piped to yard/plot   12        1
+#                             piped from the neighbor   13        1
+#                                public tap/standpipe   14        1
+#                                     tube well water   20        1
+#                               tube well or borehole   21        1
+#                             protected well  to yard   31        1
+#                               others protected well   32        1
+#                                    protected spring   41        1
+#                                           rainwater   51        1
+#                           dug well (open/protected)   30        0
+#                            unprotected well to yard   33        0
+#                  public and others unprotected well   34        0
+#                                       surface water   40        0
+#                                  unprotected spring   42        0
+# river/dam/lake/ponds/stream/canal/irrigation channel   43        0
+#                                        tanker truck   61        0
+#                                cart with small tank   62        0
+#                                       bottled water   71        0
+#                              sales company of water   72        0
+#                                               other   96        0
+
+hh = hh %>% 
+  mutate(
+    # -- straight classification of whether the source is improved --
+    improved_water = ifelse(water_source == 99, NA,
+                                 ifelse(water_source %in% impr_water_codes, 1,
+                                        ifelse(water_source %in% unimpr_water_codes, 0, NA))),
+    # -- improved source + <= 30 min. to acquire --
+    # time2water = 996 == "on premises"; assumed to be < 30 min.
+    impr_water_under30min = ifelse(is.na(time2water) | is.na(improved_water), NA,
+                                   ifelse((time2water <= 30 | time2water == 996) & improved_water == 1, 1, 0))
+    )
 
 # clean and merge geodata -------------------------------------------------
 geo = geo_raw@data %>% 
