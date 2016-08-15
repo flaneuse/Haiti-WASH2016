@@ -1,0 +1,23 @@
+"","x"
+"piped water",10
+"    piped into dwelling",11
+"    piped to yard/plot",12
+"    piped from the neighbor",13
+"    public tap/standpipe",14
+"tube well water",20
+"   tube well or borehole",21
+"dug well (open/protected)",30
+"   protected well  to yard",31
+"   others protected well",32
+"   unprotected well to yard",33
+"   public and others unprotected well",34
+"surface water",40
+"   protected spring",41
+"   unprotected spring",42
+"   river/dam/lake/ponds/stream/canal/irrigation channel",43
+"   rainwater",51
+"   tanker truck",61
+"   cart with small tank",62
+"   bottled water",71
+"   sales company of water",72
+"   other",96
