@@ -277,9 +277,23 @@ hh = hh %>%
                             hh$toilet_source %in% od_codes ~ 'open defecation',
                             TRUE ~ NA_character_),
     # -- improved source + unshared --
-    improved_toilet = ifelse(is.na(time2water) | is.na(improved_water), NA,
-                             ifelse(time2water <= 30  & improved_water == 1, 1, 0))
+    improved_toilet = case_when(is.na(hh$toilet_type) ~ NA_real_,
+                                (hh$toilet_type == 'improved' & hh$share_toilet == 0) ~ 1, # improved, unshared
+                                (hh$toilet_type == 'improved' & hh$share_toilet == 1) ~ 0, # improved, shared
+                                hh$toilet_type %in% c('unimproved', 'open defecation') ~ 0, # unimproved or open defecation
+                                TRUE ~ NA_real_),
+    impr_toilet_type = case_when(is.na(hh$toilet_type) ~ NA_character_,
+                                (hh$toilet_type == 'improved' & hh$share_toilet == 0) ~ 'improved-unshared', # improved, unshared
+                                (hh$toilet_type == 'improved' & hh$share_toilet == 1) ~ 'improved-shared', # improved, shared
+                                hh$toilet_type == 'unimproved' ~ 'unimproved', # unimproved
+                                hh$toilet_type == 'open defecation' ~ 'open defecation', # open defecation
+                                TRUE ~ NA_character_)
   )
+
+# -- Quick summary tables --
+hh %>% group_by(toilet_type, improved_toilet) %>% summarise(n = n()) %>% ungroup() %>% mutate(pct = percent(n/sum(n), ndigits = 1))
+
+hh %>% group_by(impr_toilet_type) %>% summarise(n = n()) %>%  mutate(pct = percent(n/sum(n), ndigits = 1))
 
 # clean and merge geodata -------------------------------------------------
 # -- Import coordinates of clusters --
