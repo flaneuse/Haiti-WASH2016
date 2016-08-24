@@ -20,6 +20,7 @@ library(haven)
 library(dplyr)
 library(llamar)
 library(leaflet)
+library(ggplot2)
 
 # Helper functions --------------------------------------------------------
 
@@ -102,13 +103,19 @@ hh = hh %>%
          urban = hv025,
          region = shregnew, # Note: using shregnew, not hv024, since it breaks Ouest into Aire Metropolitaine et Reste-Ouest
          interview_month = hv006,
-         water_source = hv201, 
-         time2water = hv204, 
-         toilet_source = hv205,
-         share_toilet = hv225,
-         num_share_toilet = hv238,
+         hv201, # water and toilet vars
+         hv204,
+         hv205,
+         hv225,
+         hv238,
          # water_treatment = hv237, hv237a, hv237b, hv237c, hv237d, hv237e, hv237f, hv237x, hv237z, 
          wealth_idx = hv270) %>% 
+  # Create copies to avoid overriding data
+  mutate(time2water = hv204,
+         water_source = hv201,
+         toilet_source = hv205,
+         share_toilet = hv225,
+         num_share_toilet = hv238) %>% 
   # -- Remove hh in camps --
   # based on the assumption that they will be different than the rest of the population.
   # 2012 survey included ~ 1000 hh living in post-earthquake camps.
@@ -136,18 +143,27 @@ hh = hh %>%
     # -- decode regional names --
     region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region),
     
-    # -- recode NA values -- (all from the Recode5 Map)
+    # -- recode NA values -- (all codes from the Recode5 Map)
     water_source = na_if(water_source, 99),
-    time2water = na_if(time2water, 998)
+    
+    time2water = case_when(hh$time2water == 999 ~ NA_integer_, 
+                            is.na(hh$time2water) ~ NA_integer_,
+                            hh$time2water == 996 ~ as.integer(0), # 996 == "on premise"; redefining as 0 minutes.
+                            TRUE ~ hh$time2water) 
   )
 
 # Checks that recoding doesn't change the # of values
+# hh %>% group_by(hv201) %>% summarise(n())
 # hh %>% group_by(water_source) %>% summarise(n())
 # 11   12   13   14   31   32   33   34   41   42   43   51   61   62   71   72   96   99 
 # 136  358  502 2367   85  520   66  433  820 3594  183  220   95  195  572 1649   38   18
-table(hh$time2water)
+
+# table(hh$time2water)
+# table(hh$hv204)
+# qplot(data = hh, y = time2water, x = hv204) 
 
 # classify improved/ not improved -----------------------------------------
+# DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
 
 # -- WATER --
 # Export type of water sources in survey.
@@ -187,13 +203,12 @@ unimpr_water_codes = unlist(water_types %>% filter(improved == 0) %>% select(cod
 hh = hh %>% 
   mutate(
     # -- straight classification of whether the source is improved --
-    improved_water = ifelse(water_source == 99, NA,
-                                 ifelse(water_source %in% impr_water_codes, 1,
-                                        ifelse(water_source %in% unimpr_water_codes, 0, NA))),
+    improved_water = ifelse(water_source %in% impr_water_codes, 1,
+                                        ifelse(water_source %in% unimpr_water_codes, 0, NA)),
     # -- improved source + <= 30 min. to acquire --
     # time2water = 996 == "on premises"; assumed to be < 30 min.
     impr_water_under30min = ifelse(is.na(time2water) | is.na(improved_water), NA,
-                                   ifelse((time2water <= 30 | time2water == 996) & improved_water == 1, 1, 0))
+                                   ifelse(time2water <= 30  & improved_water == 1, 1, 0))
     )
 
 # -- TOILETS --
