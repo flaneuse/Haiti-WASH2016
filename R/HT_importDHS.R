@@ -58,8 +58,6 @@ importShp = function(workingDir = getwd(),
 
 # Import data -------------------------------------------------------------
 
-
-
 # Read in the base module and the children's
 
 #' DHS modules are as follows:
@@ -139,6 +137,9 @@ hh = hh %>%
   mutate(
     # -- divide sample weight by 1e6 -- ("Sample weight is an 8 digit variable with 6 implied decimal places" -- Recode5 manual)
     sample_wt = sample_wt / 1e6,
+    
+    # -- divide wealth index by 1e5 --  ("Wealth index factor score (5 decimals)")
+    wealth_idx = wealth_idx / 1e5,
     
     # -- convert urban to binary --
     urban = ifelse(urban == 1, 1, 
