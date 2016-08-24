@@ -12,6 +12,15 @@
 # -------------------------------------------------------------------------
 
 
+# Load libraries ----------------------------------------------------------
+# requires dplyr > 0.5
+
+# Load necessary packages
+library(haven)
+library(dplyr)
+library(llamar)
+library(leaflet)
+
 # Helper functions --------------------------------------------------------
 
 # Function to pull attribute (label, labels) data from Stata format
@@ -48,10 +57,6 @@ importShp = function(workingDir = getwd(),
 
 # Import data -------------------------------------------------------------
 
-# Load necessary packages
-library(haven)
-library(dplyr)
-
 
 
 # Read in the base module and the children's
@@ -74,9 +79,6 @@ hh_raw = read_dta('~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/hthr61dt/HTHR61
 # NOTE: PR module should be used to reproduce DHS published stats for stunting, not KR (children's module).
 child_raw = read_dta('~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/htpr61dt/HTPR61FL.DTA')
 
-# -- Import coordinates of clusters --
-geo_raw = importShp(workingDir = '~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/htge61fl/',
-                layerName = 'HTGE61FL')
 
 # Remove labels
 hh_labels = pullAttributes(hh_raw)
@@ -108,7 +110,9 @@ hh = hh %>%
          # water_treatment = hv237, hv237a, hv237b, hv237c, hv237d, hv237e, hv237f, hv237x, hv237z, 
          wealth_idx = hv270) %>% 
   # -- Remove hh in camps --
-  filter(region != 12) # based on the assumption that they will be different than the rest of the population.
+  # based on the assumption that they will be different than the rest of the population.
+  # 2012 survey included ~ 1000 hh living in post-earthquake camps.
+  filter(region != 12) 
 
 
 # recode data -------------------------------------------------------------
@@ -121,11 +125,26 @@ hh = hh %>%
     # -- convert urban to binary --
     urban = ifelse(urban == 1, 1, 
                         ifelse(urban == 2, 0, NA)),
+    
     # -- decode regional names --
     region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region)
+    
+    # -- recode NA values --
+    time2water = na_if(time2water, 998)
   )
 
+# Checks
+hh %>% 
+
 # classify improved/ not improved -----------------------------------------
+
+# -- TOILETS --
+# export types of toilets in survey
+toilet_types = attr(hh_raw$hv205, 'labels')
+write.csv(toilet_types, '~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_types.csv')
+
+# read in Liz Jordan's classification of whether or not a toilet or water source is improved (see below in comments)
+toilet_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_classification.csv')
 
 # Toilets are defined as being 'improved' if they are one of the following types and aren't shared.
 #                           toilet_type code        improved
@@ -148,16 +167,12 @@ hh = hh %>%
 #               mobile chemical toilet   45      Unimproved
 #                                other   96      Unimproved
 
-
-# export types of toilets in survey
-toilet_types = attr(hh_raw$hv205, 'labels')
-write.csv(toilet_types, '~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_types.csv')
-
+# -- WATER --
+# Export type of water sources in survey.
 water_types = attr(hh_raw$hv201, 'labels')
 write.csv(water_types, '~/GitHub/Haiti-WASH2016/dataout/DHS_water_types.csv')
 
-# read in Liz Jordan's classification of whether or not a toilet or water source is improved.
-toilet_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_classification.csv')
+# read in Liz Jordan's classification of whether or not a toilet or water source is improved (see below in comments)
 water_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_water_classification.csv')
 impr_water_codes = unlist(water_types %>% filter(improved == 1) %>% select(code))
 unimpr_water_codes = unlist(water_types %>% filter(improved == 0) %>% select(code))
@@ -201,15 +216,25 @@ hh = hh %>%
     )
 
 # clean and merge geodata -------------------------------------------------
+# -- Import coordinates of clusters --
+geo_raw = importShp(workingDir = '~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/htge61fl/',
+                    layerName = 'HTGE61FL')
+
+# -- Select data, convert urban/rural to binaries --
 geo = geo_raw@data %>% 
   select(cluster_id = DHSCLUST, departement = ADM1NAME, ADM1FIPSNA, urban = URBAN_RURA, lat = LATNUM, lon = LONGNUM) %>% 
   mutate(urban = ifelse(urban == 'U', 1, 
-                        ifelse(urban == 'R', 0, NA)))
+                        ifelse(urban == 'R', 0, NA)),
+         # Fix lat/lon that are in the middle of the Atlantic
+         lat = ifelse(lat == 0, NA, lat),
+         lon = ifelse(lon == 0, NA, lon)
+  )
 
-library(leaflet)
+# -- merge in geocoordinates to hh --
+hh = left_join(hh, geo, by = c("cluster_id", "urban"))
 
 # quick map of cluster locations
-leaflet(geo) %>% 
+leaflet(hh) %>% 
   addCircles(~lon, ~lat, radius = 1000) %>% 
   addProviderTiles("Thunderforest.Landscape")
 
