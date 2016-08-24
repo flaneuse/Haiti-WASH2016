@@ -90,7 +90,6 @@ child = removeAttributes(child_raw)
 
 
 
-
 # Pull diarrhea, water-sanitation access, geo data ------------------------
 hh = hh %>% 
   # -- Select relevant vars --
@@ -121,6 +120,15 @@ hh = hh %>%
   # 2012 survey included ~ 1000 hh living in post-earthquake camps.
   filter(region != 12) 
 
+
+# Sample numbers ----------------------------------------------------------
+
+# Aire metropolitaine: 1,761
+# Autres villes: 2 462 
+# Urban: 4 223
+# Rural: 7 628
+# Camps: 1 330 
+# Total: 13 181
 
 # recode data -------------------------------------------------------------
 # - Translate codes to strings
