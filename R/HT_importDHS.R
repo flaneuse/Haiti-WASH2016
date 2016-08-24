@@ -76,17 +76,13 @@ importShp = function(workingDir = getwd(),
 # -- Import household data --
 hh_raw = read_dta('~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/hthr61dt/HTHR61FL.DTA')
 
-# -- Import children's data --
-# NOTE: PR module should be used to reproduce DHS published stats for stunting, not KR (children's module).
-child_raw = read_dta('~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/htpr61dt/HTPR61FL.DTA')
 
 
 # Remove labels
 hh_labels = pullAttributes(hh_raw)
-child_labels = pullAttributes(child_raw)
 
 hh = removeAttributes(hh_raw)
-child = removeAttributes(child_raw)
+
 
 
 
@@ -300,6 +296,9 @@ hh = hh %>%
 hh %>% group_by(toilet_type, improved_toilet) %>% summarise(n = n()) %>% ungroup() %>% mutate(pct = percent(n/sum(n), ndigits = 1))
 
 hh %>% group_by(impr_toilet_type) %>% summarise(n = n()) %>%  mutate(pct = percent(n/sum(n), ndigits = 1))
+
+hh %>% group_by(region_name, improved_toilet) %>% summarise(n = n()) %>% ungroup() %>%  group_by(region_name) %>% mutate(pct = n/sum(n)) %>% filter(improved_toilet == 1) %>% ungroup() %>% arrange(desc(pct))
+
 
 # clean and merge geodata -------------------------------------------------
 # -- Import coordinates of clusters --
