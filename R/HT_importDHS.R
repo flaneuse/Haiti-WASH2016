@@ -245,6 +245,9 @@ unimpr_toilet_codes = unlist(toilet_types %>% filter(improved == 'Unimproved') %
 od_codes =  unlist(toilet_types %>% filter(improved == 'open defecation') %>% select(code))
 
 # Toilets are defined as being 'improved' if they are one of the following types and aren't shared.
+# Note: DHS defines mobile chemical toilets as improved (presumably b/c they treat the waste)
+# Only 13 hh outside the camps use them.
+
 #                           toilet_type code        improved
 #                         flush toilet   10        Improved
 #          flush to piped sewer system   11        Improved
