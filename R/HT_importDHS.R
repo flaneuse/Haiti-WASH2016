@@ -108,7 +108,7 @@ hh = hh %>%
          hv225,
          hv238,
          # water_treatment = hv237, hv237a, hv237b, hv237c, hv237d, hv237e, hv237f, hv237x, hv237z, 
-         wealth_idx = hv270) %>% 
+         wealth_idx = hv271) %>% # hv271 is the decimal value; hv270 is the quintile.  No breakdown by urban/rural
   # Create copies to avoid overriding data
   mutate(time2water = hv204,
          water_source = hv201,
@@ -117,7 +117,7 @@ hh = hh %>%
          num_share_toilet = hv238) %>% 
   # -- Remove hh in camps --
   # based on the assumption that they will be different than the rest of the population.
-  # 2012 survey included ~ 1000 hh living in post-earthquake camps.
+  # 2012 survey included ~ 1330 hh living in post-earthquake camps.
   filter(region != 12) 
 
 
@@ -146,7 +146,7 @@ hh = hh %>%
     
     # -- convert urban to binary --
     urban = ifelse(urban == 1, 1, 
-                        ifelse(urban == 2, 0, NA)),
+                   ifelse(urban == 2, 0, NA)),
     
     # -- decode regional names --
     region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region),
@@ -155,12 +155,19 @@ hh = hh %>%
     water_source = na_if(water_source, 99),
     
     time2water = case_when(hh$time2water == 999 ~ NA_integer_, 
-                            is.na(hh$time2water) ~ NA_integer_,
-                            hh$time2water == 996 ~ as.integer(0), # 996 == "on premise"; redefining as 0 minutes.
-                            TRUE ~ hh$time2water) 
+                           is.na(hh$time2water) ~ NA_integer_,
+                           hh$time2water == 996 ~ as.integer(0), # 996 == "on premise"; redefining as 0 minutes.
+                           TRUE ~ hh$time2water),
+    
+    toilet_source = na_if(toilet_source, 99),
+    
+    share_toilet = na_if(share_toilet, 9), # recoding both "missing" and "don't know" to be NA values.
+    
+    num_share_toilet = na_if(num_share_toilet, 98), # recoding both "missing" and "don't know" to be NA values.
+    num_share_toilet = na_if(num_share_toilet, 99)
   )
 
-# Checks that recoding doesn't change the # of values
+# -- Checks that recoding doesn't change the # of values --
 # hh %>% group_by(hv201) %>% summarise(n())
 # hh %>% group_by(water_source) %>% summarise(n())
 # 11   12   13   14   31   32   33   34   41   42   43   51   61   62   71   72   96   99 
@@ -169,6 +176,13 @@ hh = hh %>%
 # table(hh$time2water)
 # table(hh$hv204)
 # qplot(data = hh, y = time2water, x = hv204) 
+
+# hh %>% group_by(hv205, toilet_source) %>% summarise(n())
+
+# hh %>% group_by(hv225, share_toilet) %>% summarise(n())
+
+# hh %>% group_by(hv238, num_share_toilet) %>% summarise(n())
+
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
@@ -212,12 +226,12 @@ hh = hh %>%
   mutate(
     # -- straight classification of whether the source is improved --
     improved_water = ifelse(water_source %in% impr_water_codes, 1,
-                                        ifelse(water_source %in% unimpr_water_codes, 0, NA)),
+                            ifelse(water_source %in% unimpr_water_codes, 0, NA)),
     # -- improved source + <= 30 min. to acquire --
     # time2water = 996 == "on premises"; assumed to be < 30 min.
     impr_water_under30min = ifelse(is.na(time2water) | is.na(improved_water), NA,
                                    ifelse(time2water <= 30  & improved_water == 1, 1, 0))
-    )
+  )
 
 # -- TOILETS --
 # export types of toilets in survey
@@ -226,6 +240,9 @@ write.csv(toilet_types, '~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_types.csv')
 
 # read in Liz Jordan's classification of whether or not a toilet or water source is improved (see below in comments)
 toilet_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_classification.csv')
+impr_toilet_codes = unlist(toilet_types %>% filter(improved == 'Improved') %>% select(code))
+unimpr_toilet_codes = unlist(toilet_types %>% filter(improved == 'Unimproved') %>% select(code))
+od_codes =  unlist(toilet_types %>% filter(improved == 'open defecation') %>% select(code))
 
 # Toilets are defined as being 'improved' if they are one of the following types and aren't shared.
 #                           toilet_type code        improved
@@ -247,6 +264,22 @@ toilet_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_classificati
 #           toilet hanging (on stilts)   44      Unimproved
 #               mobile chemical toilet   45      Unimproved
 #                                other   96      Unimproved
+
+
+# Checking that DHS variable "share_toilet" is correct binary for whether only one household uses toilet:
+# hh %>% group_by(share_toilet, num_share_toilet) %>% summarise(n())
+
+hh = hh %>% 
+  mutate(
+    # -- straight classification of whether the source is improved --
+    toilet_type = case_when(hh$toilet_source %in% impr_toilet_codes ~ 'improved',
+                            hh$toilet_source %in% unimpr_toilet_codes ~ 'unimproved',
+                            hh$toilet_source %in% od_codes ~ 'open defecation',
+                            TRUE ~ NA_character_),
+    # -- improved source + unshared --
+    improved_toilet = ifelse(is.na(time2water) | is.na(improved_water), NA,
+                             ifelse(time2water <= 30  & improved_water == 1, 1, 0))
+  )
 
 # clean and merge geodata -------------------------------------------------
 # -- Import coordinates of clusters --
