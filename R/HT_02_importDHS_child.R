@@ -28,7 +28,7 @@ child_labels = pullAttributes(child_raw)
 
 # Select important data ---------------------------------------------------
 
-child = child %>% 
+ch = child %>% 
   # -- Select relevant vars --
   select(caseid, 
          cluster_id = v001,
@@ -39,19 +39,55 @@ child = child %>%
          urban = v025,
          region = sregnew, # Note: using shregnew, not hv024, since it breaks Ouest into Aire Metropolitaine et Reste-Ouest
          interview_month = v006,
-         wealth_idx = v190, # hv271 is the decimal value; hv270 is the quintile.  No breakdown by urban/rural
+         wealth_idx = v191, # hv271 is the decimal value; hv270 is the quintile.  No breakdown by urban/rural
          # age_months = hc1, # in months, PR module
          age_months = hw1,
-         sex = b4,
+         age_yrs = b8,
+         b4,
          # sex = hc27, # PR module
          # eligible = hv120, #PR module
-         diarrhea = h11
+         diarrhea = h11,
+         hw5,
+         hw13 # result of height/weight measurement (whether or not measured)
+         
   ) %>% 
-  
   # -- Select only children under 5 --
-  # filter(age_months < 60 & eligible == 1)
-  filter(age_months < 60) # Should be redundant.
+  filter(age_yrs < 5) %>% # Removes NA for ages
+  mutate(sex = b4,
+         stunting_eligible = hw13 == 0,
+         stunting_score = hw5) # whether the child's height/weight was measured; 0 == measured.
 
 # Sample sizes ------------------------------------------------------------
 
+# recode data -------------------------------------------------------------
+# - Translate codes to strings
+# - Remove coded NA values
+# - Divide numbers by their scaling factor, since DHS hates decimal points.
 
+region_codes = data.frame(code = attr(child_raw$sregnew, 'labels')) 
+region_codes = region_codes %>% 
+  mutate(region = row.names(region_codes))
+
+ch = ch %>% 
+  mutate(
+    # -- divide sample weight by 1e6 -- ("Sample weight is an 8 digit variable with 6 implied decimal places" -- Recode5 manual)
+    sample_wt = sample_wt / 1e6,
+    
+    # -- divide wealth index by 1e5 --  ("Wealth index factor score (5 decimals)")
+    wealth_idx = wealth_idx / 1e5,
+    
+    # -- convert urban to binary --
+    urban = ifelse(urban == 1, 1, 
+                   ifelse(urban == 2, 0, NA)),
+    
+    # -- decode regional names --
+    region_name = plyr::mapvalues(ch$region, from = region_codes$code, to = region_codes$region),
+    
+    # -- decode sex --
+    sex = case_when(ch$sex == 1 ~ 'male',
+                    ch$sex == 2 ~ 'female',
+                    TRUE ~ NA_character_)
+    
+    # -- recode NA values -- (all codes from the Recode5 Map)
+    
+  )
