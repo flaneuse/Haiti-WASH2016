@@ -275,7 +275,10 @@ hh = hh %>%
     toilet_type = case_when(hh$toilet_source %in% impr_toilet_codes ~ 'improved',
                             hh$toilet_source %in% unimpr_toilet_codes ~ 'unimproved',
                             hh$toilet_source %in% od_codes ~ 'open defecation',
-                            TRUE ~ NA_character_),
+                            TRUE ~ NA_character_))
+
+hh = hh %>% 
+  mutate(
     # -- improved source + unshared --
     improved_toilet = case_when(is.na(hh$toilet_type) ~ NA_real_,
                                 (hh$toilet_type == 'improved' & hh$share_toilet == 0) ~ 1, # improved, unshared
@@ -283,11 +286,11 @@ hh = hh %>%
                                 hh$toilet_type %in% c('unimproved', 'open defecation') ~ 0, # unimproved or open defecation
                                 TRUE ~ NA_real_),
     impr_toilet_type = case_when(is.na(hh$toilet_type) ~ NA_character_,
-                                (hh$toilet_type == 'improved' & hh$share_toilet == 0) ~ 'improved-unshared', # improved, unshared
-                                (hh$toilet_type == 'improved' & hh$share_toilet == 1) ~ 'improved-shared', # improved, shared
-                                hh$toilet_type == 'unimproved' ~ 'unimproved', # unimproved
-                                hh$toilet_type == 'open defecation' ~ 'open defecation', # open defecation
-                                TRUE ~ NA_character_)
+                                 (hh$toilet_type == 'improved' & hh$share_toilet == 0) ~ 'improved-unshared', # improved, unshared
+                                 (hh$toilet_type == 'improved' & hh$share_toilet == 1) ~ 'improved-shared', # improved, shared
+                                 hh$toilet_type == 'unimproved' ~ 'unimproved', # unimproved
+                                 hh$toilet_type == 'open defecation' ~ 'open defecation', # open defecation
+                                 TRUE ~ NA_character_)
   )
 
 # -- Quick summary tables --
