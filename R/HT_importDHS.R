@@ -16,11 +16,12 @@
 # requires dplyr > 0.5
 
 # Load necessary packages
+library(llamar)
 library(haven)
 library(dplyr)
-library(llamar)
 library(leaflet)
 library(ggplot2)
+library(survey)
 
 # Helper functions --------------------------------------------------------
 
