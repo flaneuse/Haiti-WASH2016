@@ -52,7 +52,8 @@ ch = child %>%
          
   ) %>% 
   # -- Select only children under 5 --
-  filter(age_yrs < 5) %>% # Removes NA for ages
+  filter(age_yrs < 5, # Removes NA for ages
+         region != 12) %>% # remove camps 
   mutate(sex = b4,
          diarrhea = h11,
          stunting_eligible = hw13 == 0,
@@ -106,3 +107,30 @@ table(ch$diarrhea, ch$h11, useNA = 'ifany')
 
 ch %>% filter(hw70 > 600) %>% group_by(stunting_score, hw70) %>% summarise(n())
 qplot(data = ch, x = hw70/100, y = stunting_score) + coord_cartesian(xlim = c(-6, 6))
+
+
+# Classify stunting -------------------------------------------------------
+ch = ch %>% 
+  mutate(stunted = if_else(stunting_score < -2, 1, 0, NA_real_),
+         sev_stunted = if_else(stunting_score < -3, 1, 0, NA_real_))
+
+
+# Quick table -------------------------------------------------------------
+ch  %>% filter(!is.na(stunting_score))  %>% group_by(urban) %>% summarise(mean(sev_stunted), mean(stunted), mean(stunting_score), n())
+
+ch  %>% filter(!is.na(stunting_score))  %>% group_by(region_name) %>% summarise(sev = percent(mean(sev_stunted)), 
+                                                                                stunt = percent(mean(stunted)), 
+                                                                                score = mean(stunting_score), n())
+
+
+# Calculate stunting values -----------------------------------------------
+# 4045 kids eligible to be measured and were
+# 3984 kids with valid stunting measurements
+stunted = ch %>% 
+  filter(stunting_eligible == 1, !is.na(stunting_score))
+
+# Set up the design of the DHS sampling frame
+DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = stunted)
+summary(DHSdesign)
+
+svyby(~stunted, by = ~region_name, DHSdesign, svymean, deff, level = 0.95, na.rm = TRUE)
