@@ -43,19 +43,20 @@ ch = child %>%
          # age_months = hc1, # in months, PR module
          age_months = hw1,
          age_yrs = b8,
-         b4,
+         b4, # sex
          # sex = hc27, # PR module
          # eligible = hv120, #PR module
-         diarrhea = h11,
-         hw5,
+         h11,
+         hw70, # Using WHO height/age calculation
          hw13 # result of height/weight measurement (whether or not measured)
          
   ) %>% 
   # -- Select only children under 5 --
   filter(age_yrs < 5) %>% # Removes NA for ages
   mutate(sex = b4,
+         diarrhea = h11,
          stunting_eligible = hw13 == 0,
-         stunting_score = hw5) # whether the child's height/weight was measured; 0 == measured.
+         stunting_score = hw70) # whether the child's height/weight was measured; 0 == measured.
 
 # Sample sizes ------------------------------------------------------------
 
@@ -86,8 +87,22 @@ ch = ch %>%
     # -- decode sex --
     sex = case_when(ch$sex == 1 ~ 'male',
                     ch$sex == 2 ~ 'female',
-                    TRUE ~ NA_character_)
+                    TRUE ~ NA_character_),
     
-    # -- recode NA values -- (all codes from the Recode5 Map)
+    # -- recode diarrheal incidence --
+    diarrhea = case_when(ch$diarrhea %in% c(1, 2) ~ 1,
+                         ch$diarrhea == 0 ~ 0,
+                         TRUE ~ NA_real_), # don't know, missing, not applicable
     
+    # -- recode height/age measurements --
+    # Reset 9996 (height out of plausible limits), 9997 (age out of plausible limits), 9998 (flagged cases), 9999 (missing) to be missing
+    stunting_score = if_else(stunting_score < 9996, stunting_score / 100, false = NA_real_, missing = NA_real_)
   )
+
+# -- Check recoding was done properly --
+table(ch$sex, ch$b4, useNA = 'ifany')
+
+table(ch$diarrhea, ch$h11, useNA = 'ifany')
+
+ch %>% filter(hw70 > 600) %>% group_by(stunting_score, hw70) %>% summarise(n())
+qplot(data = ch, x = hw70/100, y = stunting_score) + coord_cartesian(xlim = c(-6, 6))
