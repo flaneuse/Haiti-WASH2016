@@ -97,8 +97,8 @@ hh = hh %>%
          cluster_id = hv001,
          hh_num = hv002,
          sample_wt = hv005,
-         prim_sampling_unit = hv021,
-         sample_strata = hv022,
+         prim_sampling_unit = hv021, # Usually same as cluster number and/or ultimate area unit, but may differ if multistage sampling used
+         sample_strata = hv022, # Groupings of primary sampling units for clustering errors by region
          urban = hv025,
          region = shregnew, # Note: using shregnew, not hv024, since it breaks Ouest into Aire Metropolitaine et Reste-Ouest
          interview_month = hv006,
@@ -116,56 +116,38 @@ hh = hh %>%
 
 
 # recode data -------------------------------------------------------------
+# - Translate codes to strings
+# - Remove coded NA values
+# - Divide numbers by their scaling factor, since DHS hates decimal points.
+
 region_codes = data.frame(code = attr(hh_raw$shregnew, 'labels')) 
 region_codes = region_codes %>% 
   mutate(region = row.names(region_codes))
 
 hh = hh %>% 
   mutate(
+    # -- divide sample weight by 1e6 -- ("Sample weight is an 8 digit variable with 6 implied decimal places" -- Recode5 manual)
+    sample_wt = sample_wt / 1e6,
+    
     # -- convert urban to binary --
     urban = ifelse(urban == 1, 1, 
                         ifelse(urban == 2, 0, NA)),
     
     # -- decode regional names --
-    region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region)
+    region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region),
     
-    # -- recode NA values --
+    # -- recode NA values -- (all from the Recode5 Map)
+    water_source = na_if(water_source, 99),
     time2water = na_if(time2water, 998)
   )
 
-# Checks
-hh %>% 
+# Checks that recoding doesn't change the # of values
+# hh %>% group_by(water_source) %>% summarise(n())
+# 11   12   13   14   31   32   33   34   41   42   43   51   61   62   71   72   96   99 
+# 136  358  502 2367   85  520   66  433  820 3594  183  220   95  195  572 1649   38   18
+table(hh$time2water)
 
 # classify improved/ not improved -----------------------------------------
-
-# -- TOILETS --
-# export types of toilets in survey
-toilet_types = attr(hh_raw$hv205, 'labels')
-write.csv(toilet_types, '~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_types.csv')
-
-# read in Liz Jordan's classification of whether or not a toilet or water source is improved (see below in comments)
-toilet_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_classification.csv')
-
-# Toilets are defined as being 'improved' if they are one of the following types and aren't shared.
-#                           toilet_type code        improved
-#                         flush toilet   10        Improved
-#          flush to piped sewer system   11        Improved
-#                 flush to septic tank   12        Improved
-#                 flush to pit latrine   13        Improved
-#              flush to somewhere else   14        Improved
-#              flush, don't know where   15        Improved
-#                   pit toilet latrine   20        Improved
-# ventilated improved pit latrine (vip)   21        Improved
-#                pit latrine with slab   22        Improved
-#                    composting toilet   41        Improved
-#                          no facility   30 open defecation
-#               no facility/bush/field   31 open defecation
-#    pit latrine without slab/open pit   23      Unimproved
-#                        bucket toilet   42      Unimproved
-#               hanging toilet/latrine   43      Unimproved
-#           toilet hanging (on stilts)   44      Unimproved
-#               mobile chemical toilet   45      Unimproved
-#                                other   96      Unimproved
 
 # -- WATER --
 # Export type of water sources in survey.
@@ -212,8 +194,36 @@ hh = hh %>%
     # time2water = 996 == "on premises"; assumed to be < 30 min.
     impr_water_under30min = ifelse(is.na(time2water) | is.na(improved_water), NA,
                                    ifelse((time2water <= 30 | time2water == 996) & improved_water == 1, 1, 0))
-    FIX 998 / 999 codes!!
     )
+
+# -- TOILETS --
+# export types of toilets in survey
+toilet_types = attr(hh_raw$hv205, 'labels')
+write.csv(toilet_types, '~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_types.csv')
+
+# read in Liz Jordan's classification of whether or not a toilet or water source is improved (see below in comments)
+toilet_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_toilet_classification.csv')
+
+# Toilets are defined as being 'improved' if they are one of the following types and aren't shared.
+#                           toilet_type code        improved
+#                         flush toilet   10        Improved
+#          flush to piped sewer system   11        Improved
+#                 flush to septic tank   12        Improved
+#                 flush to pit latrine   13        Improved
+#              flush to somewhere else   14        Improved
+#              flush, don't know where   15        Improved
+#                   pit toilet latrine   20        Improved
+# ventilated improved pit latrine (vip)   21        Improved
+#                pit latrine with slab   22        Improved
+#                    composting toilet   41        Improved
+#                          no facility   30 open defecation
+#               no facility/bush/field   31 open defecation
+#    pit latrine without slab/open pit   23      Unimproved
+#                        bucket toilet   42      Unimproved
+#               hanging toilet/latrine   43      Unimproved
+#           toilet hanging (on stilts)   44      Unimproved
+#               mobile chemical toilet   45      Unimproved
+#                                other   96      Unimproved
 
 # clean and merge geodata -------------------------------------------------
 # -- Import coordinates of clusters --
