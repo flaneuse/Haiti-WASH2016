@@ -184,6 +184,15 @@ hh = hh %>%
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
+# WHO/UNICEF Joint Monitoring Programme for Water Supply and Sanitation: http://www.wssinfo.org/definitions-methods/watsan-categories/
+
+# NOTE! DHS classifies bottled water (eau en bouteille, petit vendeur d'eau) as being improved.
+# HOWEVER-- both WHO (JMP) and USAID WASH experts default to assuming the bottled water is unimproved unless proven otherwise.
+# If the bottled water is consumed out of preference and the household has access to an improved water source for cooking and 
+# personal hygiene, the bottled water can be deemed "improved." In the absence of that issue, it's assumed to be unimproved.
+# Unfortunately, the DHS didn't collect info on water sources for non-drinking water.
+# Therefore, we are going AGAINST the DHS report and classifying bottled water as unimproved.
+
 
 # -- WATER --
 # Export type of water sources in survey.
@@ -301,6 +310,15 @@ hh %>% group_by(impr_toilet_type) %>% summarise(n = n()) %>%  mutate(pct = perce
 
 hh %>% group_by(region_name, improved_toilet) %>% summarise(n = n()) %>% ungroup() %>%  group_by(region_name) %>% mutate(pct = n/sum(n)) %>% filter(improved_toilet == 1) %>% ungroup() %>% arrange(desc(pct))
 
+
+
+# Apply sampling weights --------------------------------------------------
+
+DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = hh)
+summary(DHSdesign)
+
+svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
+svymean(~improved_water, DHSdesign, na.rm = TRUE)
 
 # clean and merge geodata -------------------------------------------------
 # -- Import coordinates of clusters --
