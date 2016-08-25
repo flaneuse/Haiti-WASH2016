@@ -18,6 +18,8 @@
 
 # -- Import children's data --
 # NOTE: PR module should be used to reproduce DHS published stats for stunting, not KR (children's module).
+child_raw = read_dta('~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/htpr61dt/HTPR61FL.DTA')
+
 child_raw = read_dta('~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/htkr61dt/HTKR61FL.DTA')
 # Diarrhea is asked in women's module, not personal records.
 
@@ -132,5 +134,7 @@ stunted = ch %>%
 # Set up the design of the DHS sampling frame
 DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = stunted)
 summary(DHSdesign)
+
+svymean(~stunted, DHSdesign, na.rm = TRUE)
 
 svyby(~stunted, by = ~region_name, DHSdesign, svymean, deff, level = 0.95, na.rm = TRUE)
