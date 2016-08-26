@@ -32,6 +32,7 @@ library(survey)
 library(llamar)
 library(haven)
 library(ggplot2)
+library(readr)
 library(dplyr)
 library(tidyr)
 
@@ -62,18 +63,25 @@ importShp = function(workingDir = getwd(),
 # Raw data directly from DHS. Replaced by spatially joined data (below)
 # geo_raw = importShp(workingDir = paste0(local_wd, 'Haiti_DHS2012/htge61fl/'),
                     # layerName = 'HTGE61FL')
+# geo = geo_raw@data
 
 # Raw DHS data was spatially joined with Haiti Admin2 and Admin3 boundaries in Esri. 
 # Admin boundaries were provided by Joel Barthelemy, GIS specialist in Haiti
-geo_raw = read_csv()
-
+geo_raw = read_csv(paste0(local_wd, 'htGEO/2013_HTI_DHS_ClusterGEO.csv'))
+geo = geo_raw
 
 
 # Clean geodata -----------------------------------------------------------
 
 # -- Select data, convert urban/rural to binaries --
-geo = geo_raw@data %>% 
-  select(cluster_id = DHSCLUST, departement = ADM1NAME, ADM1FIPSNA, urban = URBAN_RURA, lat = LATNUM, lon = LONGNUM) %>% 
+geo = geo %>% 
+  select(cluster_id = DHSCLUST, 
+         admin1 = ADM1NAME, A1_PCode, # departement
+         urban = URBAN_RURA, 
+         lat = LATNUM, lon = LONGNUM,
+         admin2 = A2_Name, A2_PCode, # arrondisment
+         admin3 = A3_Name, A3_PCode # commune
+         ) %>% 
   mutate(urban = ifelse(urban == 'U', 1, 
                         ifelse(urban == 'R', 0, NA)),
          # Fix lat/lon that are in the middle of the Atlantic
@@ -85,7 +93,11 @@ geo = geo_raw@data %>%
 # quick map ---------------------------------------------------------------
 
 # quick map of cluster locations
+
+paired = colorFactor("Paired", domain = NULL)
+
 leaflet(geo) %>% 
-  addCircles(~lon, ~lat, radius = 1000) %>% 
+  addCircles(~lon, ~lat, radius = 1000,
+             color = ~paired(admin1)) %>% 
   addProviderTiles("Thunderforest.Landscape")
 
