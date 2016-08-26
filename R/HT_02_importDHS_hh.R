@@ -23,7 +23,7 @@
 
 # Helper functions --------------------------------------------------------
 
-# Function to pull attribute (label, labels) data from Stata format
+# -- Function to pull attribute (label, labels) data from Stata format --
 pullAttributes <- function(data) {
   
   metadata = lapply(data, function(x) attr(x, 'label'))
@@ -37,7 +37,7 @@ pullAttributes <- function(data) {
   return(df)
 }
 
-# Remove attribute information from object
+# -- Remove attribute information from object --
 removeAttributes <- function(data) {
   data <- lapply(data, function(x) {
     attr(x, "labels") <- NULL
@@ -57,6 +57,7 @@ removeAttributes <- function(data) {
   })
   data = data.frame(data)
 }
+
 
 
 # Import data -------------------------------------------------------------
