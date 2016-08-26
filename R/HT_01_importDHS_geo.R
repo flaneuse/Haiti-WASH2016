@@ -14,7 +14,7 @@
 #
 # -------------------------------------------------------------------------
 
-# Function to clean geodata from 2012 Haiti DHS
+# Function to clean geodata from 2012 Haiti DHS and to import basic shapefiles of Haiti administrative units
 
 
 # Function setup ----------------------------------------------------------
@@ -27,6 +27,7 @@ local_wd = '~/Documents/USAID/Haiti/rawdata/'
 # requires dplyr > 0.5
 
 library(rgdal)
+library(maptools)
 library(leaflet)
 library(survey)
 library(llamar)
@@ -52,6 +53,66 @@ importShp = function(workingDir = getwd(),
   # the dsn argument of '.' says to look for the layer in the current directory.
   rawShp = rgdal::readOGR(dsn = ".", layer = layerName)
 }
+
+shp2df = function(workingDir = getwd(),
+                     layerName,
+                     exportData = TRUE,
+                     fileName = layerName,
+                     labelVar = NA,
+                     reproject = TRUE, projection = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") {
+  
+  # Check that the layerName doesn't contain any extensions
+  # Check that layerName exists within the wd
+  
+  # Log the current working directory, to change back at the end.
+  currentDir = getwd()
+  
+  # Change directory to the file folder containing the shape file
+  setwd(workingDir)
+  
+  # the dsn argument of '.' says to look for the layer in the current directory.
+  rawShp = rgdal::readOGR(dsn = ".", layer = layerName)
+  
+  if (reproject == TRUE) {
+    # reproject the data
+    projectedShp = spTransform(rawShp, CRS(projection))
+  } else {
+    projectedShp = rawShp
+  }
+  # pull out the row names from the data and save it as a new column called 'id'
+  projectedShp@data$id = rownames(projectedShp@data)
+  
+  # Convert the shape polygons into a series of lat/lon coordinates.
+  poly_points = ggplot2::fortify(projectedShp, region = "id")
+  
+  # Merge the polygon lat/lon points with the original data
+  df = dplyr::left_join(poly_points, projectedShp@data, by = "id")
+  
+  
+  # Pull out the centroids and the associated names.
+  centroids = data.frame(coordinates(projectedShp)) %>% rename(long = X1, lat = X2)
+  
+  if (!is.na(labelVar)) {
+    if (labelVar %in% colnames(projectedShp@data)) {
+      # Merge the names with the centroids
+      centroids = cbind(centroids, projectedShp@data[labelVar]) %>% rename_(label = labelVar)  # rename the column
+    } else {
+      warning("label variable for the centroids is not in the raw shapefile")
+    }
+  }
+  
+  # if the 'exportData' option is selected, save the lat/lon coordinates as a .csv
+  if (exportData == TRUE) {
+    write.csv(df, paste0(workingDir, "/", fileName, ".csv"))
+    write.csv(centroids, paste0(workingDir, "/", fileName, "_centroids.csv"))
+  }
+  
+  
+  # Return the dataframe containing the coordinates and the centroids
+  return(list(df = df, centroids = centroids))
+}
+
+# -- Function to import shapefiles and convert to a ggplot-able object --
 
 
 # Import coordinates of clusters ------------------------------------------
@@ -101,3 +162,14 @@ leaflet(geo) %>%
              color = ~paired(admin1)) %>% 
   addProviderTiles("Thunderforest.Landscape")
 
+
+
+
+# Import Admin shapefiles -------------------------------------------------
+admin1 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
+                    layerName = 'hti_polbnda_adm1_cnigs',
+                    labelVar = 'A1_Name')
+
+admin2 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
+                layerName = 'hti_polbnda_adm2_cnigs',
+                labelVar = 'A2_Name')
