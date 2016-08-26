@@ -98,8 +98,9 @@ hh %>% group_by(impr_toilet_type) %>% summarise(n = n()) %>%  mutate(pct = perce
 hh %>% group_by(region_name, improved_toilet) %>% summarise(n = n()) %>% ungroup() %>%  group_by(region_name) %>% mutate(pct = n/sum(n)) %>% filter(improved_toilet == 1) %>% ungroup() %>% arrange(desc(pct))
 
 # Set up sampling weights --------------------------------------------------
-DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata23, weights = ~sample_wt, data = hh)
+DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = hh)
 summary(DHSdesign)
 
 # Apply sampling weights
 toilet = svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
+toilet = svyby(~improved_toilet, by = ~dhs_region, design = DHSdesign, svymean, na.rm = TRUE)
