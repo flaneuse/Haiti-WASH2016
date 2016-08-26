@@ -115,6 +115,33 @@ shp2df = function(workingDir = getwd(),
   return(list(df = df, centroids = centroids))
 }
 
+
+plotMap = function(df, 
+                   fill_var = 'id',
+                   exportPlot = FALSE, 
+                   fileName = "map.pdf", 
+                   stroke_width = 0.2,
+                   stroke_colour = grey90K,
+                   plotWidth = 6, plotHeight = 6) {
+  
+  p = ggplot(df, aes(x = long, y = lat, group = group)) + 
+    geom_polygon(aes_string(fill = fill_var)) +
+    geom_path(colour = stroke_colour, size = stroke_width) +
+    theme_void() + 
+    coord_equal() + 
+    theme(legend.position = "none")
+  
+  if (exportPlot == TRUE) {
+    ggsave(filename = fileName, 
+           width = plotWidth, height = plotHeight, units = "in",
+           bg = "transparent", 
+           paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
+  }
+  
+  return(p)
+  
+}
+
 # -- Wrapper to survey::svyby --
 # Calculates point estimates with standard errors, weighted by sample weights
 calcPtEst = function(var, # What you want to average
