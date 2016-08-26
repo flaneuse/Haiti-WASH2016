@@ -102,5 +102,17 @@ DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights
 summary(DHSdesign)
 
 # Apply sampling weights
-toilet = svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
-toilet = svyby(~improved_toilet, by = ~dhs_region, design = DHSdesign, svymean, na.rm = TRUE)
+
+# -- National-level stats (sans camps) --
+toilet_natl = svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
+
+# -- Recalculating DHS-published stats --
+# dhs_region                        improved_toilet         se
+# aire metropolitaine (without camp)       0.3782652 0.02486723
+      # autres villes (without camp)       0.3808763 0.02206386
+              # rural (without camp)       0.1962384 0.01383396
+toilet_dhs = svyby(~improved_toilet, by = ~dhs_region, design = DHSdesign, svymean, na.rm = TRUE)
+
+# -- By Admin1 --
+toilet_admin1 = svyby(~improved_toilet, by = ~region_name, design = DHSdesign, svymean, na.rm = TRUE)
+
