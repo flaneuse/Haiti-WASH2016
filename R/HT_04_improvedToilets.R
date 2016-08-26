@@ -115,11 +115,22 @@ toilet_dhs = svyby(~improved_toilet, by = ~dhs_region, design = DHSdesign, svyme
 
 
 # -- By Admin1 + Port-au-Prince --
-toilet_admin1 = calcPtEst('improved_toilet', by_var = 'region_name', design = DHSdesign, df = hh)
+toilet_admin1_PaP = calcPtEst('improved_toilet', by_var = 'region_name', design = DHSdesign, df = hh)
 
 # -- By Admin1 --
 toilet_admin1 = calcPtEst('improved_toilet', by_var = 'admin1', design = DHSdesign, df = hh)
 
 # -- By Admin2 --
 toilet_admin2 = calcPtEst('improved_toilet', by_var = 'admin2', design = DHSdesign, df = hh)
+
+
+# Admin1 map --------------------------------------------------------------
+haiti_polygons = left_join(dhs_geo$df, toilet_admin1_PaP, by = c('DHSREGFR' = 'region_name'))
+
+# -- AVERAGE --
+plotMap(haiti_polygons, fill_var = 'improved_toilet')
+
+# -- LOWER BOUND --
+
+# -- UPPER BOUND --
 
