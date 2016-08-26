@@ -4,7 +4,7 @@ Code is licensed through an MIT license (below)
 ## Content
 All derived content is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-MIT License
+## MIT License
 
 Copyright (c) 2016 Laura Hughes
 
