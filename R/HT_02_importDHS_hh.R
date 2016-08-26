@@ -5,23 +5,21 @@
 # Data are from the 2012 DHS, available at http://dhsprogram.com/what-we-do/survey/survey-display-368.cfm
 #
 # Laura Hughes, lhughes@usaid.gov, 15 August 2016
-# With Patrick Gault (pgault@usaid.gov) and Tim Essam (tessam@usaid.gov)
+# with Patrick Gault (pgault@usaid.gov) and Tim Essam (tessam@usaid.gov)
 #
 # Copyright 2016 by Laura Hughes via MIT License
 #
 # -------------------------------------------------------------------------
 
 
-# Load libraries ----------------------------------------------------------
-# requires dplyr > 0.5
+# Previous dependencies ---------------------------------------------------
+# `HT_01_importDHS_geo.R` is meant to be run first.  The following are dependencies in that file:
 
-# Load necessary packages
-library(llamar)
-library(haven)
-library(dplyr)
-library(leaflet)
-library(ggplot2)
-library(survey)
+# * local_wd: string containing the location where the raw DHS data are saved locally
+# * geo: dataframe with the geographic coordinates of the clusters
+# * all necessary libraries
+
+
 
 # Helper functions --------------------------------------------------------
 
@@ -37,23 +35,6 @@ pullAttributes <- function(data) {
   
   df = mutate(metadata, varValues = labels)
   return(df)
-}
-
-# Function to import shapefiles
-importShp = function(workingDir = getwd(),
-                     layerName) {
-  library(rgdal)
-  # Check that the layerName doesn't contain any extensions
-  # Check that layerName exists within the wd
-  
-  # Log the current working directory, to change back at the end.
-  currentDir = getwd()
-  
-  # Change directory to the file folder containing the shape file
-  setwd(workingDir)
-  
-  # the dsn argument of '.' says to look for the layer in the current directory.
-  rawShp = rgdal::readOGR(dsn = ".", layer = layerName)
 }
 
 
@@ -73,8 +54,7 @@ importShp = function(workingDir = getwd(),
 #' * WI: wealth index data (for data before 1990 to calcualte wealth index)
 
 # -- Import household data --
-hh_raw = read_dta('~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/hthr61dt/HTHR61FL.DTA')
-
+hh_raw = read_dta(paste0(local_wd, 'Haiti_DHS2012/hthr61dt/HTHR61FL.DTA'))
 
 
 # Remove labels
@@ -312,7 +292,7 @@ hh %>% group_by(region_name, improved_toilet) %>% summarise(n = n()) %>% ungroup
 
 
 
-# Apply sampling weights --------------------------------------------------
+# Set up sampling weights --------------------------------------------------
 
 DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = hh)
 summary(DHSdesign)
@@ -320,26 +300,10 @@ summary(DHSdesign)
 svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
 svymean(~improved_water, DHSdesign, na.rm = TRUE)
 
-# clean and merge geodata -------------------------------------------------
-# -- Import coordinates of clusters --
-geo_raw = importShp(workingDir = '~/Documents/USAID/Haiti/rawdata/Haiti_DHS2012/htge61fl/',
-                    layerName = 'HTGE61FL')
 
-# -- Select data, convert urban/rural to binaries --
-geo = geo_raw@data %>% 
-  select(cluster_id = DHSCLUST, departement = ADM1NAME, ADM1FIPSNA, urban = URBAN_RURA, lat = LATNUM, lon = LONGNUM) %>% 
-  mutate(urban = ifelse(urban == 'U', 1, 
-                        ifelse(urban == 'R', 0, NA)),
-         # Fix lat/lon that are in the middle of the Atlantic
-         lat = ifelse(lat == 0, NA, lat),
-         lon = ifelse(lon == 0, NA, lon)
-  )
+# Merge in geocoordinates -----------------------------------------------------
+# Object geo is defined in file HT_01_importDHS_geo.R, which pulls in the offset
+# lat/lon coordinates of the survey clusters.
 
 # -- merge in geocoordinates to hh --
 hh = left_join(hh, geo, by = c("cluster_id", "urban"))
-
-# quick map of cluster locations
-leaflet(hh) %>% 
-  addCircles(~lon, ~lat, radius = 1000) %>% 
-  addProviderTiles("Thunderforest.Landscape")
-
