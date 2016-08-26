@@ -32,8 +32,10 @@ library(leaflet)
 library(survey)
 library(llamar)
 library(haven)
+library(stringr)
 library(broom)
 library(ggplot2)
+library(RColorBrewer)
 library(readr)
 library(dplyr)
 library(tidyr)
@@ -122,14 +124,25 @@ plotMap = function(df,
                    fileName = "map.pdf", 
                    stroke_width = 0.2,
                    stroke_colour = grey90K,
+                   fill_scale = NA,
+                   fill_limits = NA,
+                   bg_fill = '#d0d1e6', # water
                    plotWidth = 6, plotHeight = 6) {
   
   p = ggplot(df, aes(x = long, y = lat, group = group)) + 
     geom_polygon(aes_string(fill = fill_var)) +
     geom_path(colour = stroke_colour, size = stroke_width) +
     theme_void() + 
-    coord_equal() + 
-    theme(legend.position = "none")
+    coord_equal() 
+  
+  if(!is.na(fill_scale)) {
+    if(is.na(fill_limits)) {
+      fill_limits = c(0, 1)
+    }
+    p = p +  
+      scale_fill_gradientn(colours = brewer.pal(9, fill_scale), 
+                           limits = fill_limits)    
+  }
   
   if (exportPlot == TRUE) {
     ggsave(filename = fileName, 
