@@ -35,7 +35,6 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 * pulls relevant variables for future analysis
 * mildly cleans data (removing NAs, recoding variables based on codebook, converting real numbers by their scaling factors)
 * merges hh data with geographic data
-* sets up survey design to apply sampling weights
 
 ### `HT_03_importDHS_child.R`
 * imports individual-level children's data from DHS using module KR
@@ -45,4 +44,10 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 
 ### `HT_04_improvedToilets.R`
 * imports classification of toilets as being improved or unimproved
-* 
+* calculates improved latrine percentage by geography
+* merges into geographic object to make choropleths
+
+### `HT_05_improvedWater.R`
+* imports classification of drinking water source as being improved or unimproved
+* calculates improved drinking water percentage by geography
+* merges into geographic object to make choropleths
