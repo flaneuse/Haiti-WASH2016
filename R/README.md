@@ -14,7 +14,7 @@ Copyright 2016 by Laura Hughes via MIT License
 ## Order of files to be read:
 For the scripts to be reproducible, they should be run in the following order. In certain cases, the inputs from previous files
 are used in subsequent.  These should be noted at the top of each of the scripts.
-* `HT_01_importDHS_geo.R`: imports geographic coordinates of clusters 
+* `HT_01_importDHS_geo.R`: imports geographic coordinates of clusters and admin units
 * `HT_02_importDHS_hh.R`: imports household-level data
 * `HT_03_importDHS_child.R`: imports individual children's data
 * `HT_04_improvedToilets.R`: calculates percentage of improved toilets geographically across Haiti
@@ -26,7 +26,8 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 ### `HT_01_importDHS_geo.R`
 * loads in all necessary packages
 * sets working directory for location of raw data
-* imports geographically-offset
+* imports geographically-offset household cluster locations
+* imports shapefiles of administrative units of Haiti.
 
 
 ### `HT_02_importDHS_hh.R`
@@ -40,3 +41,7 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 * pulls relevant variables for future analysis
 * mildly cleans data (removing NAs, recoding variables based on codebook, converting real numbers by their scaling factors)
 * merges hh data with geographic data
+
+### `HT_04_improvedToilets.R`
+* imports classification of toilets as being improved or unimproved
+* 
