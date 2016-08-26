@@ -113,6 +113,13 @@ toilet_natl = svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
               # rural (without camp)       0.1962384 0.01383396
 toilet_dhs = svyby(~improved_toilet, by = ~dhs_region, design = DHSdesign, svymean, na.rm = TRUE)
 
+
+# -- By Admin1 + Port-au-Prince --
+toilet_admin1 = calcPtEst('improved_toilet', by_var = 'region_name', design = DHSdesign, df = hh)
+
 # -- By Admin1 --
-toilet_admin1 = svyby(~improved_toilet, by = ~region_name, design = DHSdesign, svymean, na.rm = TRUE)
+toilet_admin1 = calcPtEst('improved_toilet', by_var = 'admin1', design = DHSdesign, df = hh)
+
+# -- By Admin2 --
+toilet_admin2 = calcPtEst('improved_toilet', by_var = 'admin2', design = DHSdesign, df = hh)
 
