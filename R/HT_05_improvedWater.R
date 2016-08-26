@@ -18,7 +18,7 @@
 # `HT_01_importDHS_geo.R`, `HT_02_importDHS_hh.R` are meant to be run first.  The following are dependencies in thoses files:
 
 # * hh: dataframe with household-level indicators
-# * admin1-3: shapefiles containing geographic polygons of Haiti
+# * admin1-2: shapefiles containing geographic polygons of Haiti
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 

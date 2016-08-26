@@ -18,7 +18,7 @@
 # `HT_01_importDHS_geo.R`, `HT_02_importDHS_hh.R` are meant to be run first.  The following are dependencies in thoses files:
 
 # * hh: dataframe with household-level indicators
-# * admin1-3: shapefiles containing geographic polygons of Haiti
+# * admin1-2: shapefiles containing geographic polygons of Haiti
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
@@ -98,8 +98,8 @@ hh %>% group_by(impr_toilet_type) %>% summarise(n = n()) %>%  mutate(pct = perce
 hh %>% group_by(region_name, improved_toilet) %>% summarise(n = n()) %>% ungroup() %>%  group_by(region_name) %>% mutate(pct = n/sum(n)) %>% filter(improved_toilet == 1) %>% ungroup() %>% arrange(desc(pct))
 
 # Set up sampling weights --------------------------------------------------
-DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata22, weights = ~sample_wt, data = hh)
+DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata23, weights = ~sample_wt, data = hh)
 summary(DHSdesign)
 
 # Apply sampling weights
-svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
+toilet = svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
