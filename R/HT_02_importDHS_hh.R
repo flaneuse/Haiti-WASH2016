@@ -142,6 +142,10 @@ region_codes = data.frame(code = attr(hh_raw$shregnew, 'labels'))
 region_codes = region_codes %>% 
   mutate(region = row.names(region_codes))
 
+dhs_codes = data.frame(code = attr(hh_raw$shlocnew3, 'labels'))
+dhs_codes = dhs_codes %>% 
+  mutate(region = row.names(dhs_codes))
+
 hh = hh %>% 
   mutate(
     # -- divide sample weight by 1e6 -- ("Sample weight is an 8 digit variable with 6 implied decimal places" -- Recode5 manual)
@@ -156,6 +160,7 @@ hh = hh %>%
     
     # -- decode regional names --
     region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region),
+    dhs_region = plyr::mapvalues(hh$dhs_region, from = dhs_codes$code, to = dhs_codes$region),
     
     # -- recode NA values -- (all codes from the Recode5 Map)
     water_source = na_if(water_source, 99),
