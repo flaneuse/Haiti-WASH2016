@@ -19,7 +19,6 @@
 
 # * hh: dataframe with household-level indicators
 # * admin1-3: shapefiles containing geographic polygons of Haiti
-# * DHSdesign: survey object containing the 
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
@@ -78,3 +77,9 @@ hh = hh %>%
     impr_water_under30min = ifelse(is.na(time2water) | is.na(improved_water), NA,
                                    ifelse(time2water <= 30  & improved_water == 1, 1, 0))
   )
+
+# Set up sampling weights --------------------------------------------------
+DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata22, weights = ~sample_wt, data = hh)
+summary(DHSdesign)
+
+svymean(~improved_water, DHSdesign, na.rm = TRUE)
