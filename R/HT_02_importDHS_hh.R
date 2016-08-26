@@ -191,12 +191,6 @@ hh = hh %>%
 
 
 
-# Set up sampling weights --------------------------------------------------
-
-DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata22, weights = ~sample_wt, data = hh)
-summary(DHSdesign)
-
-
 # Merge in geocoordinates -----------------------------------------------------
 # Object geo is defined in file HT_01_importDHS_geo.R, which pulls in the offset
 # lat/lon coordinates of the survey clusters.
