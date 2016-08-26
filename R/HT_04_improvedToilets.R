@@ -19,7 +19,6 @@
 
 # * hh: dataframe with household-level indicators
 # * admin1-3: shapefiles containing geographic polygons of Haiti
-# * DHSdesign: survey object containing the 
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
@@ -97,6 +96,10 @@ hh %>% group_by(toilet_type, improved_toilet) %>% summarise(n = n()) %>% ungroup
 hh %>% group_by(impr_toilet_type) %>% summarise(n = n()) %>%  mutate(pct = percent(n/sum(n), ndigits = 1))
 
 hh %>% group_by(region_name, improved_toilet) %>% summarise(n = n()) %>% ungroup() %>%  group_by(region_name) %>% mutate(pct = n/sum(n)) %>% filter(improved_toilet == 1) %>% ungroup() %>% arrange(desc(pct))
+
+# Set up sampling weights --------------------------------------------------
+DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata22, weights = ~sample_wt, data = hh)
+summary(DHSdesign)
+
 # Apply sampling weights
 svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
-svymean(~improved_water, DHSdesign, na.rm = TRUE)
