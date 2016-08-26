@@ -76,9 +76,9 @@ geo = geo_raw
 # -- Select data, convert urban/rural to binaries --
 geo = geo %>% 
   select(cluster_id = DHSCLUST, 
-         admin1 = ADM1NAME, A1_PCode, # departement
          urban = URBAN_RURA, 
          lat = LATNUM, lon = LONGNUM,
+         admin1 = ADM1NAME, A1_PCode, # departement
          admin2 = A2_Name, A2_PCode, # arrondisment
          admin3 = A3_Name, A3_PCode # commune
          ) %>% 
