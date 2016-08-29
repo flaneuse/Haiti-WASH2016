@@ -132,8 +132,17 @@ toilet_ea = calcPtEst('improved_toilet', by_var = 'cluster_id', design = DHSdesi
 
 
 # Admin1 map --------------------------------------------------------------
-
-haiti_polygons = left_join(dhs_geo$df, toilet_admin1_PaP, by = c('DHSREGFR' = 'region_name'))
+# NOTE!!!! Keep track of this, cuz it'll save you HOURS of debugging.
+# Since Aire Métropolitaine is charming and French, it has an accent.  
+# This means that its UTF-8 encoding doesn't like to play nicely with the
+# DHS spellings of the names, even though THEY'RE EXACTLY THE SAME.
+# Encodings are the worst.
+# Anyway, turns out that if you flip the way the merge works, tidyr seems to translate the 
+# string into the same type of encoding (I think) and they merge properly.
+# Point being: put the hh variable FIRST (as in the data data), NOT the geographic data frame.
+# left_join(geo_data, dhs_data) doesn't work, but right_join(dhs_data, geo_data) does
+# Hopefully, this is only an issue because the DHS strips accents from their data frame but leaves them in for spatial data set.
+haiti_polygons = right_join(toilet_admin1_PaP, dhs_geo$df, by = c('region_name' = 'DHSREGFR'))
 
 # -- AVERAGE --
 plotMap(haiti_polygons, 
