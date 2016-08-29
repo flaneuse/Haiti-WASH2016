@@ -20,6 +20,10 @@
 # * hh: dataframe with household-level indicators
 # * admin1-2: shapefiles containing geographic polygons of Haiti
 
+
+# Set colors and other basics ---------------------------------------------
+colour_toilet = 'YlOrBr'
+
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
 # WHO/UNICEF Joint Monitoring Programme for Water Supply and Sanitation: http://www.wssinfo.org/definitions-methods/watsan-categories/
@@ -134,19 +138,19 @@ haiti_polygons = left_join(dhs_geo$df, toilet_admin1_PaP, by = c('DHSREGFR' = 'r
 # -- AVERAGE --
 plotMap(haiti_polygons, 
         fill_var = 'improved_toilet',
-        fill_scale = 'RdPu',
+        fill_scale = colour_toilet,
         fill_limits = c(0.05, 0.45))
 
 # -- LOWER BOUND --
 plotMap(haiti_polygons, 
         fill_var = 'lb',
-        fill_scale = 'RdPu',
+        fill_scale = colour_toilet,
         fill_limits = c(0.05, 0.45))
 
 # -- UPPER BOUND --
 plotMap(haiti_polygons, 
         fill_var = 'ub',
-        fill_scale = 'RdPu',
+        fill_scale = colour_toilet,
         fill_limits = c(0.05, 0.45))
 
 # Admin2 map --------------------------------------------------------------
@@ -155,17 +159,17 @@ haiti_polygons = left_join(admin2$df, toilet_admin2, by = c('NAME_2' = 'admin2')
 # -- AVERAGE --
 plotMap(haiti_polygons, 
         fill_var = 'improved_toilet',
-        fill_scale = 'RdPu',
+        fill_scale = colour_toilet,
         fill_limits = c(0, 0.55))
 
 # -- LOWER BOUND --
 plotMap(haiti_polygons, 
         fill_var = 'lb',
-        fill_scale = 'RdPu',
+        fill_scale = colour_toilet,
         fill_limits = c(0.0, 0.55))
 
 # -- UPPER BOUND --
 plotMap(haiti_polygons, 
         fill_var = 'ub',
-        fill_scale = 'RdPu',
+        fill_scale = colour_toilet,
         fill_limits = c(0.0, 0.5))

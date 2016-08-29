@@ -20,6 +20,10 @@
 # * hh: dataframe with household-level indicators
 # * admin1-2: shapefiles containing geographic polygons of Haiti
 
+
+# Set colors and other basics ---------------------------------------------
+colour_water = 'Blues'
+
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
 # WHO/UNICEF Joint Monitoring Programme for Water Supply and Sanitation: http://www.wssinfo.org/definitions-methods/watsan-categories/
@@ -118,8 +122,8 @@ haiti_polygons = left_join(dhs_geo$df, water_admin1_PaP, by = c('DHSREGFR' = 're
 
 plotMap(haiti_polygons, 
         fill_var = 'avg',
-        fill_scale = 'RdPu',
-        fill_limits = c(0.2, 0.5))
+        fill_scale = colour_water,
+        fill_limits = c(0.2, 0.65))
 
 
 # Export data to krig surface ---------------------------------------------
