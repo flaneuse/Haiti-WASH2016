@@ -42,7 +42,7 @@ library(tidyr)
 
 
 # -- Function to import shapefiles --
-importShp = function(workingDir = getwd(),
+read_shp = function(workingDir = getwd(),
                      layerName) {
   # Check that the layerName doesn't contain any extensions
   # Check that layerName exists within the wd
@@ -223,15 +223,35 @@ calcPtEst = function(var, # What you want to average
 # For the purposes of calculating averages at the departement level (Admin1),
 # these households are *included* since they have 
 
+# NOTE!: Administrative units in Haiti are sort of confusing. Both communes
+# and arrondissements are commonly referred to as being Admininstrative boundary 2,
+# depending on who you talk to.
+# In this analysis:
+# -- ADMIN1 = DÉPARTEMENT --
+# -- ADMIN2 = ARRONDISSEMENT --
+# -- ADMIN3 = COMMUNE --
+
 # Raw data directly from DHS. Replaced by spatially joined data (below)
-# geo_raw = importShp(workingDir = paste0(local_wd, 'Haiti_DHS2012/htge61fl/'),
+# geo_raw = read_shp(workingDir = paste0(local_wd, 'Haiti_DHS2012/htge61fl/'),
 # layerName = 'HTGE61FL')
 # geo = geo_raw@data
 
 # Raw DHS data was spatially joined with Haiti Admin2 and Admin3 boundaries in Esri. 
-# Admin boundaries were provided by Joel Barthelemy, GIS specialist in Haiti
-geo_raw = read_csv(paste0(local_wd, 'htGEO/2013_HTI_DHS_ClusterGEO.csv'))
-geo = geo_raw
+# Admin1 and 3 boundaries were provided by Joel Barthelemy, GIS specialist in Haiti
+# Admin2 boundary from GADM (arrondissement)
+
+
+# Admin2 spatial join (Arrondissements)
+geo_admin2 = read_shp(workingDir = paste0(local_wd, 'htGEO/'), 
+                      layerName = '2013_HTI_DHSClusterGeoGADM')
+geo_admin2 = geo_admin2@data
+
+# Admin3 spatial join (Communes)
+geo_admin3 = read_csv(paste0(local_wd, 'htGEO/2013_HTI_DHS_ClusterGEO.csv'))
+
+# Merge Admin2 and Admin3 data
+geo = full_join(geo_admin2, geo_admin3,
+                by = c("FID_HTGE61", "DHSID", "DHSCC", "DHSYEAR", "DHSCLUST", "CCFIPS", "ADM1FIPS", "ADM1FIPSNA", "ADM1SALBNA", "ADM1SALBCO", "ADM1DHS", "ADM1NAME", "DHSREGCO", "DHSREGNA", "SOURCE", "URBAN_RURA", "LATNUM", "LONGNUM", "ALT_GPS", "ALT_DEM", "DATUM"))
 
 
 # Clean geodata -----------------------------------------------------------
@@ -242,8 +262,8 @@ geo = geo %>%
          urban = URBAN_RURA, 
          lat = LATNUM, lon = LONGNUM,
          admin1 = ADM1NAME, A1_PCode, # departement
-         admin2 = A2_Name, A2_PCode, # arrondisment
-         admin3 = A3_Name, A3_PCode # commune
+         admin2 = NAME_2, ID_2, # arrondisment
+         admin3 = A2_Name, A2_PCode # commune
   ) %>% 
   mutate(urban = ifelse(urban == 'U', 1, 
                         ifelse(urban == 'R', 0, NA)),
