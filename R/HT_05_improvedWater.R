@@ -128,5 +128,5 @@ plotMap(haiti_polygons,
 
 # Export data to krig surface ---------------------------------------------
 # For krigging, unnecessary to apply weights to each EA (since same)
-write_csv(hh, '~/GitHub/Haiti-WASH2016/dataout/HT_DHS2012_imprsanitation_2016-08-29.csv')
+write_csv(hh, '~/Documents/USAID/Haiti/dataout/HT_DHS2012_imprsanitation_2016-08-29.csv')
 
