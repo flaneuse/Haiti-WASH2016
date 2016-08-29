@@ -113,7 +113,6 @@ toilet_natl = svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
               # rural (without camp)       0.1962384 0.01383396
 toilet_dhs = svyby(~improved_toilet, by = ~dhs_region, design = DHSdesign, svymean, na.rm = TRUE)
 
-
 # -- By Admin1 + Port-au-Prince --
 toilet_admin1_PaP = calcPtEst('improved_toilet', by_var = 'region_name', design = DHSdesign, df = hh)
 
@@ -123,14 +122,50 @@ toilet_admin1 = calcPtEst('improved_toilet', by_var = 'admin1', design = DHSdesi
 # -- By Admin2 --
 toilet_admin2 = calcPtEst('improved_toilet', by_var = 'admin2', design = DHSdesign, df = hh)
 
+# -- By EA (for kriging) --
+# Weights have no effect on EAs, but useful way to summarise by EA
+toilet_ea = calcPtEst('improved_toilet', by_var = 'cluster_id', design = DHSdesign, df = hh)
+
 
 # Admin1 map --------------------------------------------------------------
+
 haiti_polygons = left_join(dhs_geo$df, toilet_admin1_PaP, by = c('DHSREGFR' = 'region_name'))
 
 # -- AVERAGE --
-plotMap(haiti_polygons, fill_var = 'improved_toilet')
+plotMap(haiti_polygons, 
+        fill_var = 'improved_toilet',
+        fill_scale = 'RdPu',
+        fill_limits = c(0.05, 0.45))
 
 # -- LOWER BOUND --
+plotMap(haiti_polygons, 
+        fill_var = 'lb',
+        fill_scale = 'RdPu',
+        fill_limits = c(0.05, 0.45))
 
 # -- UPPER BOUND --
+plotMap(haiti_polygons, 
+        fill_var = 'ub',
+        fill_scale = 'RdPu',
+        fill_limits = c(0.05, 0.45))
 
+# Admin2 map --------------------------------------------------------------
+haiti_polygons = left_join(admin2$df, toilet_admin2, by = c('A2_Name' = 'admin2'))
+
+# -- AVERAGE --
+plotMap(haiti_polygons, 
+        fill_var = 'improved_toilet',
+        fill_scale = 'RdPu',
+        fill_limits = c(-0.1, 0.8))
+
+# -- LOWER BOUND --
+plotMap(haiti_polygons, 
+        fill_var = 'lb',
+        fill_scale = 'RdPu',
+        fill_limits = c(0.05, 0.45))
+
+# -- UPPER BOUND --
+plotMap(haiti_polygons, 
+        fill_var = 'ub',
+        fill_scale = 'RdPu',
+        fill_limits = c(0.05, 0.45))
