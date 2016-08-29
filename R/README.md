@@ -27,7 +27,7 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 * loads in all necessary packages
 * sets working directory for location of raw data
 * imports geographically-offset household cluster locations
-* imports shapefiles of administrative units of Haiti.
+* imports shapefiles of administrative units of Haiti and relevant basemaps
 
 
 ### `HT_02_importDHS_hh.R`
