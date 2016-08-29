@@ -150,22 +150,22 @@ plotMap(haiti_polygons,
         fill_limits = c(0.05, 0.45))
 
 # Admin2 map --------------------------------------------------------------
-haiti_polygons = left_join(admin2$df, toilet_admin2, by = c('A2_Name' = 'admin2'))
+haiti_polygons = left_join(admin2$df, toilet_admin2, by = c('NAME_2' = 'admin2'))
 
 # -- AVERAGE --
 plotMap(haiti_polygons, 
         fill_var = 'improved_toilet',
         fill_scale = 'RdPu',
-        fill_limits = c(-0.1, 0.8))
+        fill_limits = c(0, 0.55))
 
 # -- LOWER BOUND --
 plotMap(haiti_polygons, 
         fill_var = 'lb',
         fill_scale = 'RdPu',
-        fill_limits = c(0.05, 0.45))
+        fill_limits = c(0.0, 0.55))
 
 # -- UPPER BOUND --
 plotMap(haiti_polygons, 
         fill_var = 'ub',
         fill_scale = 'RdPu',
-        fill_limits = c(0.05, 0.45))
+        fill_limits = c(0.0, 0.5))
