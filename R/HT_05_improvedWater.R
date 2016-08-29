@@ -22,7 +22,7 @@
 
 
 # Set colors and other basics ---------------------------------------------
-colour_water = 'Blues'
+colour_water = 'YlGnBu'
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
