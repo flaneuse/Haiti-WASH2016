@@ -63,6 +63,7 @@ shp2df = function(workingDir = getwd(),
                   layerName,
                   exportData = TRUE,
                   fileName = layerName,
+                  getCentroids = TRUE,
                   labelVar = NA,
                   reproject = TRUE, projection = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") {
   
@@ -93,28 +94,38 @@ shp2df = function(workingDir = getwd(),
   # Merge the polygon lat/lon points with the original data
   df = dplyr::left_join(poly_points, projectedShp@data, by = "id")
   
-  
-  # Pull out the centroids and the associated names.
-  centroids = data.frame(coordinates(projectedShp)) %>% rename(long = X1, lat = X2)
-  
-  if (!is.na(labelVar)) {
-    if (labelVar %in% colnames(projectedShp@data)) {
-      # Merge the names with the centroids
-      centroids = cbind(centroids, projectedShp@data[labelVar]) %>% rename_(label = labelVar)  # rename the column
-    } else {
-      warning("label variable for the centroids is not in the raw shapefile")
+  if (getCentroids == TRUE){
+    # Pull out the centroids and the associated names.
+    centroids = data.frame(coordinates(projectedShp)) %>% rename(long = X1, lat = X2)
+    
+    if (!is.na(labelVar)) {
+      if (labelVar %in% colnames(projectedShp@data)) {
+        # Merge the names with the centroids
+        centroids = cbind(centroids, projectedShp@data[labelVar]) %>% rename_(label = labelVar)  # rename the column
+      } else {
+        warning("label variable for the centroids is not in the raw shapefile")
+      }
     }
+    
+    # if the 'exportData' option is selected, save the lat/lon coordinates as a .csv
+    if (exportData == TRUE) {
+      write.csv(df, paste0(workingDir, "/", fileName, ".csv"))
+      write.csv(centroids, paste0(workingDir, "/", fileName, "_centroids.csv"))
+    }
+    
+    
+    # Return the dataframe containing the coordinates and the centroids
+    return(list(df = df, centroids = centroids))
+  } else {
+    # if the 'exportData' option is selected, save the lat/lon coordinates as a .csv
+    if (exportData == TRUE) {
+      write.csv(df, paste0(workingDir, "/", fileName, ".csv"))
+    }
+    
+    
+    # Return the dataframe containing the coordinates and the centroids
+    return(df)
   }
-  
-  # if the 'exportData' option is selected, save the lat/lon coordinates as a .csv
-  if (exportData == TRUE) {
-    write.csv(df, paste0(workingDir, "/", fileName, ".csv"))
-    write.csv(centroids, paste0(workingDir, "/", fileName, "_centroids.csv"))
-  }
-  
-  
-  # Return the dataframe containing the coordinates and the centroids
-  return(list(df = df, centroids = centroids))
 }
 
 
@@ -126,14 +137,16 @@ plotMap = function(df,
                    stroke_colour = grey90K,
                    fill_scale = NA,
                    fill_limits = NA,
-                   bg_fill = '#d0d1e6', # water
+                   bg_fill = '#d3dceb', # water #ebf0f9
                    plotWidth = 6, plotHeight = 6) {
   
   p = ggplot(df, aes(x = long, y = lat, group = group)) + 
     geom_polygon(aes_string(fill = fill_var)) +
     geom_path(colour = stroke_colour, size = stroke_width) +
     theme_void() + 
-    coord_equal() 
+    coord_equal() +
+    theme(rect = element_rect(fill = '#ffffff', colour = '#ffffff', size = 0, linetype = 1),
+          panel.background = element_rect(fill = bg_fill))
   
   if(!is.na(fill_scale)) {
     if(is.na(fill_limits)) {
@@ -248,22 +261,50 @@ paired = colorFactor("Paired", domain = NULL)
 
 leaflet(geo) %>% 
   addCircles(~lon, ~lat, radius = 1000,
-             color = ~paired(admin1)) %>% 
+              color = ~paired(admin1)) %>% 
   addProviderTiles("Thunderforest.Landscape")
 
 
 
-
 # Import Admin shapefiles -------------------------------------------------
+# From Joel and the CNIGS, http://haitidata.org/layers/
+
 # 10 Admin1 units + Port-au-Prince metro area
 dhs_geo = shp2df(workingDir = paste0(local_wd, 'Haiti_DHS2012/shps/'),
                  layerName = 'sdr_subnational_boundaries',
                  labelVar = 'DHSREGFR')
 
+# All island
+hispaniola = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
+                    layerName = 'hti_topo_coastlimitnoaa_polygon_092008',
+                    getCentroids = FALSE)
+# Filter out inland water
+hispaniola = hispaniola %>% filter(id %in% c('210'),
+           piece == '1')
+
+
+# Country border
+admin0 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
+                layerName = 'hti_polbnda_adm0_cnigs',
+                getCentroids = FALSE)
+
+# Lakes
+lakes = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
+                layerName = 'hti_topo_lakes_polygon_092008',
+                getCentroids = FALSE)
+
+# Departements
 admin1 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
                 layerName = 'hti_polbnda_adm1_cnigs',
                 labelVar = 'A1_Name')
 
+# Arrondissements
 admin2 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
+                layerName = 'HTI_arrondissement_gadm',
+                labelVar = 'NAME_2')
+
+# Communes (from 2012)
+communes = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
                 layerName = 'hti_polbnda_adm2_cnigs',
                 labelVar = 'A2_Name')
+
