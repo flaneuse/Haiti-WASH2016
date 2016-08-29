@@ -14,13 +14,14 @@ Copyright 2016 by Laura Hughes via MIT License
 ## Order of files to be read:
 For the scripts to be reproducible, they should be run in the following order. In certain cases, the inputs from previous files
 are used in subsequent.  These should be noted at the top of each of the scripts.
-* `HT_01_importDHS_geo.R`: imports geographic coordinates of clusters and admin units
-* `HT_02_importDHS_hh.R`: imports household-level data
-* `HT_03_importDHS_child.R`: imports individual children's data
-* `HT_04_improvedToilets.R`: calculates percentage of improved toilets geographically across Haiti
-* `HT_05_improvedWater.R`: calculates percentage of improved drinking water geographically across Haiti
-* `HT_06_stunting.R`: calculates percentage of child stunting geographically across Haiti
-* `HT_07_diarrhea.R`: calculates percentage of diarrheal prevalence in children geographically across Haiti
+* `HT_01_importDHS_geo.R`: imports geographic coordinates of clusters (DHS) and admin units (nat'l)
+* `HT_02_importDHS_hh.R`: imports household-level data (DHS)
+* `HT_03_importDHS_child.R`: imports individual children's data (DHS)
+* `HT_04_improvedToilets.R`: calculates percentage of improved toilets geographically across Haiti (DHS)
+* `HT_05_improvedWater.R`: calculates percentage of improved drinking water geographically across Haiti (DHS)
+* `HT_06_stunting.R`: calculates percentage of child stunting geographically across Haiti (DHS)
+* `HT_07_diarrhea.R`: calculates percentage of diarrheal prevalence in children geographically across Haiti (DHS)
+* `HT_08_cholera.R`: hotspots of cholera infection (UNICEF)
 
 ## Individual files
 ### `HT_01_importDHS_geo.R`
@@ -51,3 +52,7 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 * imports classification of drinking water source as being improved or unimproved
 * calculates improved drinking water percentage by geography
 * merges into geographic object to make choropleths
+
+### `HT_08_cholera.R`
+* imports locations of cholera outbreaks from UNICEF priority-areas
+* georeferences and merges to a mapping dataset
