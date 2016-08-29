@@ -42,6 +42,17 @@ water_types = read.csv('~/GitHub/Haiti-WASH2016/dataout/DHS_water_classification
 impr_water_codes = unlist(water_types %>% filter(improved == 1) %>% select(code))
 unimpr_water_codes = unlist(water_types %>% filter(improved == 0) %>% select(code))
 
+
+# To isolate the effect of the bottled water, create classificaiton if improved, unimproved, or bottled.
+bottled_codes = c(71, 72)
+unimpr_water_codes_bottled = setdiff(unimpr_water_codes, bottled_codes)
+
+# To double check published stats, using the DHS-classification for bottled water.
+impr_water_codes_dhs = c(impr_water_codes, bottled_codes)
+unimpr_water_codes_dhs = setdiff(unimpr_water_codes, bottled_codes)
+
+
+
 # Water sources are defined as being 'improved' if they are one of the following types and can be reached in <= 30 minutes
 #                                           watersource code improved
 #                                         piped water   10        1
@@ -75,11 +86,43 @@ hh = hh %>%
     # -- improved source + <= 30 min. to acquire --
     # time2water = 996 == "on premises"; assumed to be < 30 min.
     impr_water_under30min = ifelse(is.na(time2water) | is.na(improved_water), NA,
-                                   ifelse(time2water <= 30  & improved_water == 1, 1, 0))
+                                   ifelse(time2water <= 30  & improved_water == 1, 1, 0)),
+    # -- DHS classification -- 
+    impr_water_dhs = ifelse(water_source %in% impr_water_codes_dhs, 1,
+                                  ifelse(water_source %in% unimpr_water_codes_dhs, 0, NA)),
+    
+    # -- bottled water --
+    impr_water_type =  ifelse(water_source %in% impr_water_codes, 'improved',
+                              ifelse(water_source %in% unimpr_water_codes_bottled, 'unimproved',
+                                     ifelse(water_source %in% bottled_codes, 'bottled',
+                                     NA)))
   )
 
+# Quick check bottled is correct:
+# hh  %>% group_by(impr_water_type) %>% summarise(n())
+
 # Set up sampling weights --------------------------------------------------
-DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata22, weights = ~sample_wt, data = hh)
+DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = hh)
 summary(DHSdesign)
 
-svymean(~improved_water, DHSdesign, na.rm = TRUE)
+# Double-checking can replicate DHS numbers
+# Off by ~ 0.1% because I removed NAs.  Otherwise, seems to check out.
+water_dhs = calcPtEst('impr_water_dhs', by_var = 'dhs_region', design = DHSdesign, df = hh)
+
+# -- By Admin1 + Port-au-Prince --
+water_admin1_PaP = calcPtEst('impr_water_under30min', by_var = 'region_name', design = DHSdesign, df = hh)
+water_admin1_PaP = calcPtEst('improved_water', by_var = 'region_name', design = DHSdesign, df = hh)
+
+# Admin1 map --------------------------------------------------------------
+haiti_polygons = left_join(dhs_geo$df, water_admin1_PaP, by = c('DHSREGFR' = 'region_name'))
+
+plotMap(haiti_polygons, 
+        fill_var = 'avg',
+        fill_scale = 'RdPu',
+        fill_limits = c(0.2, 0.5))
+
+
+# Export data to krig surface ---------------------------------------------
+# For krigging, unnecessary to apply weights to each EA (since same)
+write_csv(hh, '~/GitHub/Haiti-WASH2016/dataout/HT_DHS2012_imprsanitation_2016-08-29.csv')
+
