@@ -163,6 +163,13 @@ hh = hh %>%
     region_name = plyr::mapvalues(hh$region, from = region_codes$code, to = region_codes$region),
     dhs_region = plyr::mapvalues(hh$dhs_region, from = dhs_codes$code, to = dhs_codes$region),
     
+    # Convert region names to those within the DHS shapefile.
+    region_name = ifelse(region_name == 'aire metropolitaine', 
+                         'Aire Métropolitaine',
+                         ifelse(region_name == "grand'anse",
+                                "Grande-Anse",
+                         str_to_title(region_name))),
+    
     # -- recode NA values -- (all codes from the Recode5 Map)
     water_source = na_if(water_source, 99),
     
