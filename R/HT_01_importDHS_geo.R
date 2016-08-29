@@ -29,6 +29,7 @@ local_wd = '~/Documents/USAID/Haiti/rawdata/'
 library(rgdal)
 library(maptools)
 library(leaflet)
+library(ggmap)
 library(survey)
 library(llamar)
 library(haven)
@@ -325,7 +326,8 @@ admin2 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
                 labelVar = 'NAME_2')
 
 # Communes (from 2012)
-communes = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
+admin3 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
                 layerName = 'hti_polbnda_adm2_cnigs',
                 labelVar = 'A2_Name')
 
+admin3$df$commune = admin3$df$A2_Name
