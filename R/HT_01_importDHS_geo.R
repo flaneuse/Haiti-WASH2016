@@ -288,6 +288,7 @@ leaflet(geo) %>%
 
 
 
+
 # Import Admin shapefiles -------------------------------------------------
 # From Joel and the CNIGS, http://haitidata.org/layers/
 
@@ -330,4 +331,5 @@ admin3 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
                 layerName = 'hti_polbnda_adm2_cnigs',
                 labelVar = 'A2_Name')
 
-admin3$df$commune = admin3$df$A2_Name
+admin3$df$commune = str_trim(admin3$df$A2_Name)
+admin3$df$departement = str_trim(admin3$df$A1_Name)
