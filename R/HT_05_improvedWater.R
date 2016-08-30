@@ -110,23 +110,46 @@ hh = hh %>%
 DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = hh)
 summary(DHSdesign)
 
+
+# Apply sampling weights --------------------------------------------------
+
+
 # Double-checking can replicate DHS numbers
 # Off by ~ 0.1% because I removed NAs.  Otherwise, seems to check out.
 water_dhs = calcPtEst('impr_water_dhs', by_var = 'dhs_region', design = DHSdesign, df = hh)
 
 # -- By Admin1 + Port-au-Prince --
 water_admin1_PaP = calcPtEst('impr_water_under30min', by_var = 'region_name', design = DHSdesign, df = hh)
-water_admin1_PaP = calcPtEst('improved_water', by_var = 'region_name', design = DHSdesign, df = hh)
+# water_admin1_PaP = calcPtEst('improved_water', by_var = 'region_name', design = DHSdesign, df = hh)
+
+# -- By Admin1 --
+water_admin1 = calcPtEst('impr_water_under30min', by_var = 'admin1', design = DHSdesign, df = hh)
+
+# -- By Admin2 --
+water_admin2 = calcPtEst('impr_water_under30min', by_var = 'admin2', design = DHSdesign, df = hh)
+# Merge in Admin1 names
+water_admin2 = left_join(water_admin2, admin2_names, by = 'admin2')
+# Merge in Admin1-level stats
+water_admin1_sum = water_admin1 %>% 
+  select(admin1, admin1_avg = avg, admin1_lb = lb, admin1_ub = ub)
+water_admin2 = left_join(water_admin2, water_admin1_sum, by = 'admin1')
+# Resort order of admin1 based on the admin1 averages.  Best (most improved toilet) == top.
+water_admin2$admin1 = factor(water_admin2$admin1, levels = water_admin1$admin1)
+
+
+# Admin2 dot plot ---------------------------------------------------------
+
+pairGrid(water_admin2, savePlots = F, y_var = 'admin2')
 
 # Admin1 map --------------------------------------------------------------
-haiti_polygons = left_join(dhs_geo$df, water_admin1_PaP, by = c('DHSREGFR' = 'region_name'))
+haiti_polygons = right_join(x, y, by = c('r'))
 
 plotMap(haiti_polygons, 
         admin0 = hispaniola,
         clipping_mask = admin0,
         fill_var = 'avg',
         fill_scale = colour_water,
-        fill_limits = c(0.2, 0.65))
+        fill_limits = c(0.,1))
 
 
 # Export data to krig surface ---------------------------------------------
