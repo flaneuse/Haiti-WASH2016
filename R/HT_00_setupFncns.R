@@ -236,6 +236,7 @@ calcPtEst = function(var, # What you want to average
 plotMap = function(df, 
                    admin0, # base map
                    clipping_mask = admin0, # clipping mask (us. country)
+                   centroids = dhs_geo$centroids,
                    lakes = NA, # inland water
                    bounding_x = c(-74.561420581, -71.130578441), 
                    bounding_y = c(17.47410627, 20.346439224),
@@ -244,13 +245,15 @@ plotMap = function(df,
                    fileName = 'map.pdf', 
                    stroke_width = 0.075,
                    stroke_colour = grey75K,
+                   size_label = 4,
                    fill_scale = NA,
                    fill_limits = NA,
                    bg_fill = '#f6f8fb',#d3dceb', # water #ebf0f9
                    lakes_fill = '#0067b9', # inland water
                    base_fill = grey15K, # underlying country
+                   alpha = 0.7, 
                    title = NA,
-                   plotWidth = 6, plotHeight = 6) {
+                   plotWidth = 10.75, plotHeight = 9) {
   
   p = ggplot(df, aes(x = long, y = lat, group = group)) + 
     
@@ -272,6 +275,7 @@ plotMap = function(df,
     # -- themes --
     theme_void() + 
     theme(rect = element_rect(fill = '#ffffff', colour = '#ffffff', size = 0, linetype = 1),
+          legend.position = c(0.1, 0.8),
           panel.background = element_rect(fill = bg_fill))
   
   
@@ -297,6 +301,23 @@ plotMap = function(df,
                            limits = fill_limits)    
   }
   
+  # -- Add labels at centroids --
+  if(!is.na(centroids)) {
+    # define color based on value
+    # colours = df %>% 
+      # mutate(case_when(df[[fill_var]] > mean(df[[fill_var]]) ~ '#ffffff',
+                       # TRUE ~ 'black'))
+    
+    # centroids = left_join(centroids, df, by = c('region_name' = 'label'))
+    
+    p = p +
+      geom_text(aes(label = label, x = long, y = lat, group = 1), 
+                size = size_label, 
+                colour = brewer.pal(9, fill_scale)[9],
+                family = 'Segoe UI Semilight',
+                data = centroids)
+  }
+    
   # -- resize by bounding_box --
   if(!is.na(bounding_x) & !is.na(bounding_y)) {
     p = p +
