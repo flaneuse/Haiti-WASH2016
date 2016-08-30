@@ -338,14 +338,16 @@ pairGrid = function (df,
                      size_SE = 1,
                      # Comparison for average
                      incl_comparison = TRUE,
-                     comp_df = NA,
-                     comp_avg = 'avg',
-                     comp_lb = 'lb',
-                     comp_ub = 'ub',
+                     comp_avg = 'admin1_avg',
+                     comp_lb = 'admin1_lb',
+                     comp_ub = 'admin1_ub',
                      alpha_comp = 0.3,
                      fill_comp = grey30K,
                      colour_comp = grey70K,
                      stroke_comp = 0.25,
+                     # Facet var
+                     facet_var = 'admin1',
+                     n_col = 1,
                      # Title
                      title = NA,
                      # Save files
@@ -392,18 +394,25 @@ pairGrid = function (df,
     theme_xgrid() +
     theme(axis.title.x = element_blank())
   
+  # -- Facet if indicated --
+  if(!is.na(facet_var)) {
+    p = p + 
+      facet_wrap(as.formula(paste0('~', facet_var)), scales ='free_y', ncol = n_col)
+  }
 
   # -- Draw the underlying comparison --
   # Note: needs to be sent to the back in AI after making
   if(incl_comparison == TRUE){
     p = p +
       geom_rect(aes_string(xmin = comp_lb, xmax = comp_ub, ymin = y_min, ymax = y_max),
-                data = comp_df,
                 fill = fill_comp,
-                alpha = alpha_comp) +
-      geom_vline(xintercept = comp_df[[comp_avg]],
-                 colour = colour_comp,
-                 size = stroke_comp)
+                alpha = alpha_comp, 
+                # Plots only once so don't have too many objects
+                data = df %>% group_by_(facet_var, comp_lb, comp_ub, comp_avg) %>% summarise(n())) +
+      geom_segment(aes_string(x = comp_avg, xend = comp_avg, y = y_min, yend = y_max),
+                   colour = colour_comp,
+                   size = stroke_comp,
+                   data = df %>% group_by_(facet_var, comp_lb, comp_ub, comp_avg) %>% summarise(n()))
   } 
   
   # -- Add title --
