@@ -161,7 +161,10 @@ plotMap(haiti_polygons,
         clipping_mask = admin0, 
         fill_var = 'improved_toilet',
         fill_scale = colour_toilet,
-        fill_limits = c(0.05, 0.45))
+        fill_limits = c(0.05, 0.45), 
+        exportPlot = TRUE,
+        fileName = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm1.pdf')
+
 
 # -- LOWER BOUND --
 plotMap(haiti_polygons,          
