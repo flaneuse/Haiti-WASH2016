@@ -107,7 +107,8 @@ hh %>% group_by(region_name, improved_toilet) %>% summarise(n = n()) %>% ungroup
 DHSdesign = svydesign(id = ~prim_sampling_unit, strata = ~sample_strata, weights = ~sample_wt, data = hh)
 summary(DHSdesign)
 
-# Apply sampling weights
+
+# Apply sampling weights --------------------------------------------------
 
 # -- National-level stats (sans camps) --
 toilet_natl = svymean(~improved_toilet, DHSdesign, na.rm = TRUE)
@@ -127,6 +128,13 @@ toilet_admin1 = calcPtEst('improved_toilet', by_var = 'admin1', design = DHSdesi
 
 # -- By Admin2 --
 toilet_admin2 = calcPtEst('improved_toilet', by_var = 'admin2', design = DHSdesign, df = hh)
+# Merge in Admin1 names
+toilet_admin2 = left_join(toilet_admin2, admin2_names, by = 'admin2')
+# Merge in Admin1-level stats
+toilet_admin1_sum = toilet_admin1 %>% 
+  select(admin1, admin1_avg = avg, admin1_lb = lb, admin1_ub = ub)
+toilet_admin2 = left_join(toilet_admin2, toilet_admin1_sum, by = 'admin1')
+
 
 # -- By EA (for kriging) --
 # Weights have no effect on EAs, but useful way to summarise by EA
