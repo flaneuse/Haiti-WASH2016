@@ -45,8 +45,8 @@ cholera = cholera %>%
   filter(!is.na(Priority)) %>% 
   # Encode Category based on 2016 UNICEF classification
   mutate(prevalence2016 = factor(`Cholera Response (Mid-term Plan)`, 
-                             levels = c('C', 'B' ,'A'),
-                             labels = c('third priority', 'second priority', 'first priority')),
+                                 levels = c('C', 'B' ,'A'),
+                                 labels = c('third priority', 'second priority', 'first priority')),
          prevalence2014 = ifelse(Priority == 'Phase 1', 2,
                                  ifelse(Priority == 'Phase 2', 1, NA)),
          commune = str_trim(commune),
@@ -61,9 +61,9 @@ chol_cities = geocode(chol_cities$loc, messaging = TRUE, output = 'more')
 # Visually check they're okay
 
 info_popup <- paste0("<strong>Dep.: </strong>", 
-                             chol_cities$administrative_area_level_1,
-                             "<br><strong>city: </strong> <br>",
-                             chol_cities$address)
+                     chol_cities$administrative_area_level_1,
+                     "<br><strong>city: </strong> <br>",
+                     chol_cities$address)
 
 leaflet(chol_cities) %>% 
   addCircles(~lon, ~lat, radius = 4000, opacity =  1,
@@ -72,12 +72,29 @@ leaflet(chol_cities) %>%
   addProviderTiles("Thunderforest.Landscape")
 
 # Merge commune-level data with maps --------------------------------------
-cholera_map = left_join(cholera, admin3$df, by = c('commune', 'departement'))
+# Only highlights affected communes
+# cholera_map = left_join(cholera, admin3$df, by = c('commune', 'departement'))
 
+cholera_map = full_join(cholera, admin3$df, by = c('commune', 'departement'))
 
 # Cholera prevalence map --------------------------------------------------
 
-plotMap(cholera_map, 
-        fill_var = 'prevalence2014',
-        fill_scale = colour_cholera,
-        fill_limits = c(0.5, 3.5))
+p = plotMap(cholera_map, 
+            admin0 = hispaniola,
+            clipping_mask = admin0,
+            fill_var = 'prevalence2014',
+            fill_scale = colour_cholera,
+            fill_limits = c(0.5, 3.5))
+
+p +
+  geom_point(aes(x = lon, y = lat, group = 1),
+             size = size_point, data = chol_cities, 
+             colour = brewer.pal(9, colour_cholera)[9],
+             fill = brewer.pal(9, colour_cholera)[7],
+             shape = 21) +
+  geom_text(aes(x = lon, y = lat, group = 1,
+                label = locality), data = chol_cities) +
+  scale_fill_gradientn(colours = brewer.pal(9, colour_cholera), 
+                       limits = c(0.5, 3.5), na.value = grey15K)
++
+  coord_equal(xlim = bounding_x, ylim = bounding_y)

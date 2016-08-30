@@ -18,10 +18,15 @@
 
 
 # Function setup ----------------------------------------------------------
+
 # -- Set working directory where the raw DHS data are located --
 # ! Note: should be changed to local location
 # Used in files 01 (geo), 02 (hh), and 03 (individual children's data)
 local_wd = '~/Documents/USAID/Haiti/rawdata/'
+
+# -- Set aesthetics --
+font_family = 'Lato'
+font_weight = 'bold'
 
 # -- Load necessary libraries --
 # requires dplyr > 0.5
@@ -45,7 +50,7 @@ library(tidyr)
 
 # -- Function to import shapefiles --
 read_shp = function(workingDir = getwd(),
-                     layerName) {
+                    layerName) {
   # Check that the layerName doesn't contain any extensions
   # Check that layerName exists within the wd
   
@@ -132,24 +137,45 @@ shp2df = function(workingDir = getwd(),
 
 
 plotMap = function(df, 
+                   admin0, # base map
+                   clipping_mask = admin0,
+                   bounding_x = c(-74.48040, -70.90593), #-71.26404
+                   bounding_y = c(17.66170, 20.49101),
                    fill_var = 'id',
                    exportPlot = FALSE, 
-                   fileName = "map.pdf", 
+                   fileName = 'map.pdf', 
                    stroke_width = 0.2,
-                   stroke_colour = grey90K,
+                   stroke_colour = grey75K,
                    fill_scale = NA,
                    fill_limits = NA,
                    bg_fill = '#d3dceb', # water #ebf0f9
+                   base_fill = grey15K, # underlying country
                    plotWidth = 6, plotHeight = 6) {
   
   p = ggplot(df, aes(x = long, y = lat, group = group)) + 
+    
+    # -- base fill the country --
+    geom_polygon(fill = base_fill, data = admin0) +
+    geom_path(colour = stroke_colour, size = stroke_width,
+              data = admin0) +
+    
+    # -- choropleth over regions --
     geom_polygon(aes_string(fill = fill_var)) +
     geom_path(colour = stroke_colour, size = stroke_width) +
-    theme_void() + 
+    
+    # -- Admin 0 outline (for clipping if needed) --
+    geom_path(colour = stroke_colour, size = stroke_width,
+              data = clipping_mask) +
+    
     coord_equal() +
+    
+    # -- themes --
+    theme_void() + 
     theme(rect = element_rect(fill = '#ffffff', colour = '#ffffff', size = 0, linetype = 1),
           panel.background = element_rect(fill = bg_fill))
   
+  
+  # -- scale color by fill_scale to create choropleth --
   if(!is.na(fill_scale)) {
     if(is.na(fill_limits)) {
       fill_limits = c(0, 1)
@@ -157,6 +183,12 @@ plotMap = function(df,
     p = p +  
       scale_fill_gradientn(colours = brewer.pal(9, fill_scale), 
                            limits = fill_limits)    
+  }
+  
+  # -- resize by bounding_box --
+  if(!is.na(bounding_x) & !is.na(bounding_y)) {
+    p = p +
+      coord_equal(xlim = bounding_x, ylim = bounding_y)
   }
   
   if (exportPlot == TRUE) {
@@ -283,7 +315,7 @@ paired = colorFactor("Paired", domain = NULL)
 
 leaflet(geo) %>% 
   addCircles(~lon, ~lat, radius = 1000,
-              color = ~paired(admin1)) %>% 
+             color = ~paired(admin1)) %>% 
   addProviderTiles("Thunderforest.Landscape")
 
 
@@ -303,7 +335,7 @@ hispaniola = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
                     getCentroids = FALSE)
 # Filter out inland water
 hispaniola = hispaniola %>% filter(id %in% c('210'),
-           piece == '1')
+                                   piece == '1')
 
 
 # Country border
@@ -313,8 +345,8 @@ admin0 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
 
 # Lakes
 lakes = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
-                layerName = 'hti_topo_lakes_polygon_092008',
-                getCentroids = FALSE)
+               layerName = 'hti_topo_lakes_polygon_092008',
+               getCentroids = FALSE)
 
 # Departements
 admin1 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
