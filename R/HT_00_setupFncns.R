@@ -326,6 +326,16 @@ pairGrid = function (df,
                      avg_var = 'avg', # string for average point
                      lb_var = 'lb', # string for lower bound of CI
                      ub_var = 'ub', # string for upper bound of CI
+                     # Percent labels
+                     sizePct = 5,
+                     # Average point
+                     sizeDot = 6,
+                     stroke_colour = grey90K,
+                     colorDot = 'YlGnBu',
+                     # S.E. bars
+                     colorSE = grey10K,
+                     alphaSE = 1,
+                     size_SE = 1,
                      # Comparison for average
                      incl_comparison = TRUE,
                      comp_df = NA,
@@ -336,24 +346,18 @@ pairGrid = function (df,
                      fill_comp = grey30K,
                      colour_comp = grey70K,
                      stroke_comp = 0.25,
+                     # Title
+                     title = NA,
                      # Save files
                      savePlots = TRUE,
                      file_name = 'plot.pdf',
-                     width_plot = 6, height_plot = 6,
-                     # Percent labels
-                     sizePct = 5,
-                     # Average point
-                     sizeDot = 6,
-                     stroke_colour = grey90K,
-                     colorDot = 'YlGnBu',
-                     # S.E. bars
-                     colorSE = grey10K,
-                     alphaSE = 1,
-                     size_SE = 1
+                     width_plot = 6, height_plot = 6
 ) {
   
   # -- Reorder the dots --
   df = df %>% 
+    # Remove any NA values
+    filter_(paste0('!is.na(', x_var, ')')) %>% 
     arrange_(paste0(avg_var))
   
   df[[x_var]] = factor(df[[x_var]], levels = df[[x_var]])
@@ -391,7 +395,7 @@ pairGrid = function (df,
   # -- Draw the underlying comparison --
   # Note: needs to be sent to the back in AI after making
   if(incl_comparison == TRUE){
-    p +
+    p = p +
       geom_rect(aes_string(xmin = x_min, xmax = x_max, ymin = comp_lb, ymax = comp_ub),
                 data = comp_df,
                 fill = fill_comp,
@@ -401,8 +405,13 @@ pairGrid = function (df,
                  size = stroke_comp)
   } 
   
-  # -- Save the main plot --
+  # -- Add title --
+  if(!is.na(title)) {
+    p = p +
+      ggtitle(title)
+  }
   
+  # -- Save the main plot --
   if (savePlots){
     ggsave(file_name, 
            plot = mainPlot,
@@ -415,6 +424,7 @@ pairGrid = function (df,
            dpi = 300)
   }
   
+  return(p)
   
 }
 
