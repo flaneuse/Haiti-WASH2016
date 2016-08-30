@@ -139,7 +139,7 @@ hh = hh %>%
     # -- recode NA values -- (all codes from the Recode5 Map)
     water_source = na_if(water_source, 99),
     
-    time2water = case_when(hh$time2water %in% c(998, 998) ~ NA_integer_, # 998 == don't know; 999 == missing
+    time2water = case_when(hh$time2water %in% c(998, 999) ~ NA_integer_, # 998 == don't know; 999 == missing
                            is.na(hh$time2water) ~ NA_integer_,
                            hh$time2water == 996 ~ as.integer(0), # 996 == "on premise"; redefining as 0 minutes.
                            TRUE ~ hh$time2water),
