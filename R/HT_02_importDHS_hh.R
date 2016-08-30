@@ -168,7 +168,10 @@ hh = hh %>%
                          'Aire Métropolitaine',
                          ifelse(region_name == "grand'anse",
                                 "Grande-Anse",
-                         str_to_title(region_name))),
+                                str_to_title(region_name))),
+    egion_urban = case_when(hh$urban == 1 ~ paste0(hh$region_name, ' - urban'),
+                            hh$urban == 0 ~ paste0(hh$region_name, ' - rural'),
+                            TRUE ~ NA_character_),
     
     # -- recode NA values -- (all codes from the Recode5 Map)
     water_source = na_if(water_source, 99),
@@ -185,6 +188,12 @@ hh = hh %>%
     num_share_toilet = na_if(num_share_toilet, 98), # recoding both "missing" and "don't know" to be NA values.
     num_share_toilet = na_if(num_share_toilet, 99)
   )
+
+# Convert regions into urban-rural + region.
+hh = hh %>% 
+  mutate(region_urban = case_when(hh$urban == 1 ~ paste0(hh$region_name, ' - urban'),
+                                  hh$urban == 0 ~ paste0(hh$region_name, ' - rural'),
+                                  TRUE ~ NA_character_))
 
 # -- Checks that recoding doesn't change the # of values --
 # hh %>% group_by(hv201) %>% summarise(n())

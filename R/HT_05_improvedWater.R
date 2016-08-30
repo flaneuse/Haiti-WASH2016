@@ -130,3 +130,4 @@ plotMap(haiti_polygons,
 # For krigging, unnecessary to apply weights to each EA (since same)
 write_csv(hh, '~/Documents/USAID/Haiti/dataout/HT_DHS2012_imprsanitation_2016-08-29.csv')
 
+x = calcPtEst('impr_water_dhs', by_var = 'region_urban', design = DHSdesign, df = hh)
