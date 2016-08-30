@@ -15,8 +15,10 @@
 # -------------------------------------------------------------------------
 
 # Previous dependencies ---------------------------------------------------
-# `HT_01_importDHS_geo.R`, `HT_02_importDHS_hh.R` are meant to be run first.  The following are dependencies in thoses files:
+# `HT_00_setupFncns.R`, `HT_01_importDHS_geo.R`, `HT_02_importDHS_hh.R` are meant to be run first.  
+# The following are dependencies in thoses files:
 
+# * All necessary functions and packages
 # * hh: dataframe with household-level indicators
 # * admin1-2: shapefiles containing geographic polygons of Haiti
 

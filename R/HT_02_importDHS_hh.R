@@ -13,50 +13,13 @@
 
 
 # Previous dependencies ---------------------------------------------------
-# `HT_01_importDHS_geo.R` is meant to be run first.  The following are dependencies in that file:
+# `HT_00_setupFncns.R` and `HT_01_importDHS_geo.R` are meant to be run first.  
+# The following are dependencies in those files:
 
 # * local_wd: string containing the location where the raw DHS data are saved locally
 # * geo: dataframe with the geographic coordinates of the clusters
 # * all necessary libraries
 
-
-
-# Helper functions --------------------------------------------------------
-
-# -- Function to pull attribute (label, labels) data from Stata format --
-pullAttributes <- function(data) {
-  
-  metadata = lapply(data, function(x) attr(x, 'label'))
-  metadata = data.frame(metadata)
-  
-  labels = lapply(data, function(x) attr(x, 'labels'))
-  
-  metadata = data.frame(var = colnames(metadata), varDescrip = t(metadata))
-  
-  df = mutate(metadata, varValues = labels)
-  return(df)
-}
-
-# -- Remove attribute information from object --
-removeAttributes <- function(data) {
-  data <- lapply(data, function(x) {
-    attr(x, "labels") <- NULL
-    x
-  })
-  data <- lapply(data, function(x) {
-    attr(x, "label") <- NULL
-    x
-  })
-  data <- lapply(data, function(x) {
-    attr(x, "class") <- NULL
-    x
-  })
-  data <- lapply(data, function(x) {
-    attr(x, "levels") <- NULL
-    x
-  })
-  data = data.frame(data)
-}
 
 
 

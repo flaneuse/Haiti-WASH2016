@@ -14,6 +14,7 @@ Copyright 2016 by Laura Hughes via MIT License
 ## Order of files to be read:
 For the scripts to be reproducible, they should be run in the following order. In certain cases, the inputs from previous files
 are used in subsequent.  These should be noted at the top of each of the scripts.
+* `HT_00_setupFncns.R`: loads packages and creates reusable functions
 * `HT_01_importDHS_geo.R`: imports geographic coordinates of clusters (DHS) and admin units (nat'l)
 * `HT_02_importDHS_hh.R`: imports household-level data (DHS)
 * `HT_03_importDHS_child.R`: imports individual children's data (DHS)
@@ -24,9 +25,11 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 * `HT_08_cholera.R`: hotspots of cholera infection (UNICEF)
 
 ## Individual files
-### `HT_01_importDHS_geo.R`
+### `HT_00_setupFncns.R`
 * loads in all necessary packages
 * sets working directory for location of raw data
+
+### `HT_01_importDHS_geo.R`
 * imports geographically-offset household cluster locations
 * imports shapefiles of administrative units of Haiti and relevant basemaps
 
@@ -56,3 +59,13 @@ are used in subsequent.  These should be noted at the top of each of the scripts
 ### `HT_08_cholera.R`
 * imports locations of cholera outbreaks from UNICEF priority-areas
 * georeferences and merges to a mapping dataset
+
+## Individual products
+All maps and visualizations:
+
+### `01_HTI_.pdf`
+
+### Adobe Illustrator cleanup of maps
+* Apply outer glow to Hispaniola to simulate water (multiply, 75%)
+* Apply transparent-to-white mask along edge of bounding box
+*

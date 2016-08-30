@@ -15,7 +15,8 @@
 # -------------------------------------------------------------------------
 
 # Previous dependencies ---------------------------------------------------
-# `HT_01_importDHS_geo.R` are meant to be run first.  The following are dependencies in thoses files:
+# `HT_00_setupFncns.R`, `HT_01_importDHS_geo.R` are meant to be run first.  
+# * The following are dependencies in thoses files:
 
 # * admin0-2, etc.: shapefiles containing geographic polygons of Haiti + basemaps
 # * libraries

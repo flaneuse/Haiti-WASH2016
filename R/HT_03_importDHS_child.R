@@ -14,7 +14,7 @@
 # -------------------------------------------------------------------------
 
 # Previous dependencies ---------------------------------------------------
-# `HT_01_importDHS_geo.R` is meant to be run first.  The following are dependencies in that file:
+# `HT_00_setupFncns.R` and `HT_01_importDHS_geo.R` are meant to be run first.  The following are dependencies in those files:
 
 # * local_wd: string containing the location where the raw DHS data are saved locally
 # * geo: dataframe with the geographic coordinates of the clusters

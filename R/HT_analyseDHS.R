@@ -15,6 +15,9 @@
 # -------------------------------------------------------------------------
 
 
+# Load necessary packages and functions -----------------------------------
+source('~/GitHub/Haiti-WASH2016/R/HT_00_setupFncns.R')
+
 # Get raw data ------------------------------------------------------------
 
 # -- Geographic data --
