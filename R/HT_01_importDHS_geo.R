@@ -106,12 +106,16 @@ dhs_geo = shp2df(workingDir = paste0(local_wd, 'Haiti_DHS2012/shps/'),
 
 # All island
 hispaniola = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
-                    layerName = 'hti_topo_coastlimitnoaa_polygon_092008',
+                    layerName = 'hti_boundaries_international_cnigs_polygon',
                     getCentroids = FALSE)
 # Filter out inland water
-hispaniola = hispaniola %>% filter(id %in% c('210'),
+hispaniola = hispaniola %>% filter(id %in% c('1', '10', '11', '12', '2', '27', '28', '6', '5'),
                                    piece == '1')
 
+leaflet(hispaniola) %>%
+  addCircles(~long, ~lat, radius = 1000,
+             color = ~paired(id)) %>%
+  addProviderTiles("Thunderforest.Landscape")
 
 # Country border
 admin0 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),

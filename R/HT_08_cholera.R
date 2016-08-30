@@ -24,7 +24,7 @@
 
 # Set colors and other basics ---------------------------------------------
 colour_cholera = 'YlGn'
-
+size_point = 2.5
 
 # Import data -------------------------------------------------------------
 
@@ -72,6 +72,7 @@ leaflet(chol_cities) %>%
              popup = info_popup) %>% 
   addProviderTiles("Thunderforest.Landscape")
 
+
 # Merge commune-level data with maps --------------------------------------
 # Only highlights affected communes
 # cholera_map = left_join(cholera, admin3$df, by = c('commune', 'departement'))
@@ -97,5 +98,3 @@ p +
                 label = locality), data = chol_cities) +
   scale_fill_gradientn(colours = brewer.pal(9, colour_cholera), 
                        limits = c(0.5, 3.5), na.value = grey15K)
-+
-  coord_equal(xlim = bounding_x, ylim = bounding_y)
