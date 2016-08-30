@@ -52,7 +52,7 @@ unimpr_water_codes = unlist(water_types %>% filter(improved == 0) %>% select(cod
 bottled_codes = c(71, 72)
 unimpr_water_codes_bottled = setdiff(unimpr_water_codes, bottled_codes)
 
-# To double check published stats, using the DHS-classification for bottled water.
+# To double check published stats, using the DHS-classification for bottled water (as improved).
 impr_water_codes_dhs = c(impr_water_codes, bottled_codes)
 unimpr_water_codes_dhs = setdiff(unimpr_water_codes, bottled_codes)
 
