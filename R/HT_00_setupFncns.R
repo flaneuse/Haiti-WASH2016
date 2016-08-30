@@ -237,8 +237,8 @@ plotMap = function(df,
                    admin0, # base map
                    clipping_mask = admin0, # clipping mask (us. country)
                    lakes = NA, # inland water
-                   bounding_x = c(-74.48040, -71.62215 * 0.988), 
-                   bounding_y = c(17.66170, 20.49101),
+                   bounding_x = c(-74.561420581, -71.130578441), 
+                   bounding_y = c(17.47410627, 20.346439224),
                    fill_var = 'id',
                    exportPlot = FALSE, 
                    fileName = 'map.pdf', 

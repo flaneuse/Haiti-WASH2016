@@ -25,6 +25,9 @@
 # * all necessary libraries
 
 
+# Set variables -----------------------------------------------------------
+
+coord_sys = '+proj=utm +zone=18 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 
 # Import coordinates of clusters ------------------------------------------
 # NOTE!: There are 8 clusters within the DHS file which have NULL coordinates.
