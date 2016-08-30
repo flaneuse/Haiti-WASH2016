@@ -134,7 +134,8 @@ toilet_admin2 = left_join(toilet_admin2, admin2_names, by = 'admin2')
 toilet_admin1_sum = toilet_admin1 %>% 
   select(admin1, admin1_avg = avg, admin1_lb = lb, admin1_ub = ub)
 toilet_admin2 = left_join(toilet_admin2, toilet_admin1_sum, by = 'admin1')
-
+# Resort order of admin1 based on the admin1 averages.  Best (most improved toilet) == top.
+toilet_admin2$admin1 = factor(toilet_admin2$admin1, levels = toilet_admin1$admin1)
 
 # -- By EA (for kriging) --
 # Weights have no effect on EAs, but useful way to summarise by EA
