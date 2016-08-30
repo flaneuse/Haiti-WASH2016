@@ -322,7 +322,7 @@ plotMap = function(df,
 
 pairGrid = function (df,
                      # Variable names within df
-                     x_var = 'region_name', # string for the y variable
+                     y_var = 'region_name', # string for the y variable
                      avg_var = 'avg', # string for average point
                      lb_var = 'lb', # string for lower bound of CI
                      ub_var = 'ub', # string for upper bound of CI
@@ -357,26 +357,27 @@ pairGrid = function (df,
   # -- Reorder the dots --
   df = df %>% 
     # Remove any NA values
-    filter_(paste0('!is.na(', x_var, ')')) %>% 
+    ungroup() %>% 
+    filter_(paste0('!is.na(', y_var, ')')) %>% 
     arrange_(paste0(avg_var))
   
-  df[[x_var]] = factor(df[[x_var]], levels = df[[x_var]])
+  df[[y_var]] = factor(df[[y_var]], levels = df[[y_var]])
   
   # Set limits for the comparison values
-  x_min = 0
-  x_max = nrow(df) + 1
+  y_min = 0
+  y_max = 8
   
   
   # -- General plot --
   p = ggplot() +
     # Error bars
     # Can't use geom_pointrange b/c want to independently control colors of fills.
-    geom_segment(aes_string(x = x_var, xend = x_var, y = lb_var, yend = ub_var),
+    geom_segment(aes_string(x = lb_var, xend = ub_var, y = y_var, yend = y_var),
                  data = df,
                  colour = colorSE, size = size_SE) +
     
     # Average point
-    geom_point(aes_string(x = x_var, y = avg_var,
+    geom_point(aes_string(x = avg_var, y = y_var, 
                           fill = avg_var),
                data = df,
                size = sizeDot,
@@ -386,8 +387,8 @@ pairGrid = function (df,
     # Color dots
     scale_fill_gradientn(colours = brewer.pal(9, colorDot)) +
     # Convert to percentages
-    scale_y_continuous(labels = scales::percent) +
-    coord_flip() +
+    scale_x_continuous(labels = scales::percent) +
+    # coord_flip() +
     theme_xgrid() +
     theme(axis.title.x = element_blank())
   
@@ -396,11 +397,11 @@ pairGrid = function (df,
   # Note: needs to be sent to the back in AI after making
   if(incl_comparison == TRUE){
     p = p +
-      geom_rect(aes_string(xmin = x_min, xmax = x_max, ymin = comp_lb, ymax = comp_ub),
+      geom_rect(aes_string(xmin = comp_lb, xmax = comp_ub, ymin = y_min, ymax = y_max),
                 data = comp_df,
                 fill = fill_comp,
                 alpha = alpha_comp) +
-      geom_hline(yintercept = comp_df[[comp_avg]],
+      geom_vline(xintercept = comp_df[[comp_avg]],
                  colour = colour_comp,
                  size = stroke_comp)
   } 
