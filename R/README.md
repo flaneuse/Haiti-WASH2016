@@ -66,6 +66,6 @@ All maps and visualizations:
 ### `01_HTI_.pdf`
 
 ### Adobe Illustrator cleanup of maps
-* Apply outer glow to Hispaniola to simulate water (multiply, 75%)
+* Apply outer glow to Hispaniola to simulate water (multiply, 90%, 0.1 in., #81accc)
 * Apply transparent-to-white mask along edge of bounding box
 *
