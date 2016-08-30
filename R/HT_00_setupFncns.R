@@ -321,16 +321,90 @@ plotMap = function(df,
 # Dot plot ----------------------------------------------------------------
 
 pairGrid = function (df,
+                     # Variable names within df
+                     x_var = 'region_name', # string for the y variable
+                     avg_var = 'avg', # string for average point
+                     lb_var = 'lb', # string for lower bound of CI
+                     ub_var = 'ub', # string for upper bound of CI
+                     # Comparison for average
+                     incl_comparison = TRUE,
+                     comp_df = NA,
+                     comp_avg = 'avg',
+                     comp_lb = 'lb',
+                     comp_ub = 'ub',
+                     alpha_comp = 0.3,
+                     fill_comp = grey30K,
+                     colour_comp = grey70K,
+                     stroke_comp = 0.25,
+                     # Save files
                      savePlots = TRUE,
-                     width_plot = 6, height_plot = 6
-                     ) {
+                     file_name = 'plot.pdf',
+                     width_plot = 6, height_plot = 6,
+                     # Percent labels
+                     sizePct = 5,
+                     # Average point
+                     sizeDot = 6,
+                     stroke_colour = grey90K,
+                     colorDot = 'YlGnBu',
+                     # S.E. bars
+                     colorSE = grey10K,
+                     alphaSE = 1,
+                     size_SE = 1
+) {
+  
+  # -- Reorder the dots --
+  df = df %>% 
+    arrange_(paste0(avg_var))
+  
+  df[[x_var]] = factor(df[[x_var]], levels = df[[x_var]])
+  
+  # Set limits for the comparison values
+  x_min = 0
+  x_max = nrow(df) + 1
   
   
+  # -- General plot --
+  p = ggplot() +
+    # Error bars
+    # Can't use geom_pointrange b/c want to independently control colors of fills.
+    geom_segment(aes_string(x = x_var, xend = x_var, y = lb_var, yend = ub_var),
+                 data = df,
+                 colour = colorSE, size = size_SE) +
+    
+    # Average point
+    geom_point(aes_string(x = x_var, y = avg_var,
+                          fill = avg_var),
+               data = df,
+               size = sizeDot,
+               shape = 21,
+               colour = stroke_colour
+    ) +
+    # Color dots
+    scale_fill_gradientn(colours = brewer.pal(9, colorDot)) +
+    # Convert to percentages
+    scale_y_continuous(labels = scales::percent) +
+    coord_flip() +
+    theme_xgrid() +
+    theme(axis.title.x = element_blank())
+  
+
+  # -- Draw the underlying comparison --
+  # Note: needs to be sent to the back in AI after making
+  if(incl_comparison == TRUE){
+    p +
+      geom_rect(aes_string(xmin = x_min, xmax = x_max, ymin = comp_lb, ymax = comp_ub),
+                data = comp_df,
+                fill = fill_comp,
+                alpha = alpha_comp) +
+      geom_hline(yintercept = comp_df[[comp_avg]],
+                 colour = colour_comp,
+                 size = stroke_comp)
+  } 
   
   # -- Save the main plot --
   
   if (savePlots){
-    ggsave(fileMain, 
+    ggsave(file_name, 
            plot = mainPlot,
            width = width_plot, height = height_plot,
            bg = 'transparent',
