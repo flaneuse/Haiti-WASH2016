@@ -122,6 +122,8 @@ water_admin1_PaP = calcPtEst('improved_water', by_var = 'region_name', design = 
 haiti_polygons = left_join(dhs_geo$df, water_admin1_PaP, by = c('DHSREGFR' = 'region_name'))
 
 plotMap(haiti_polygons, 
+        admin0 = hispaniola,
+        clipping_mask = admin0,
         fill_var = 'avg',
         fill_scale = colour_water,
         fill_limits = c(0.2, 0.65))

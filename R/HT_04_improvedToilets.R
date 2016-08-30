@@ -147,19 +147,25 @@ toilet_ea = calcPtEst('improved_toilet', by_var = 'cluster_id', design = DHSdesi
 haiti_polygons = right_join(toilet_admin1_PaP, dhs_geo$df, by = c('region_name' = 'DHSREGFR'))
 
 # -- AVERAGE --
-plotMap(haiti_polygons, 
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,         
+        clipping_mask = admin0, 
         fill_var = 'improved_toilet',
         fill_scale = colour_toilet,
         fill_limits = c(0.05, 0.45))
 
 # -- LOWER BOUND --
-plotMap(haiti_polygons, 
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,         
+        clipping_mask = admin0, 
         fill_var = 'lb',
         fill_scale = colour_toilet,
         fill_limits = c(0.05, 0.45))
 
 # -- UPPER BOUND --
-plotMap(haiti_polygons, 
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,         
+        clipping_mask = admin0, 
         fill_var = 'ub',
         fill_scale = colour_toilet,
         fill_limits = c(0.05, 0.45))
@@ -168,19 +174,25 @@ plotMap(haiti_polygons,
 haiti_polygons = left_join(admin2$df, toilet_admin2, by = c('NAME_2' = 'admin2'))
 
 # -- AVERAGE --
-plotMap(haiti_polygons, 
+plotMap(haiti_polygons,  
+        admin0 = hispaniola,
+        clipping_mask = admin0,
         fill_var = 'improved_toilet',
         fill_scale = colour_toilet,
         fill_limits = c(0, 0.55))
 
 # -- LOWER BOUND --
-plotMap(haiti_polygons, 
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,        
+        clipping_mask = admin0,
         fill_var = 'lb',
         fill_scale = colour_toilet,
         fill_limits = c(0.0, 0.55))
 
 # -- UPPER BOUND --
-plotMap(haiti_polygons, 
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,         
+        clipping_mask = admin0, 
         fill_var = 'ub',
         fill_scale = colour_toilet,
         fill_limits = c(0.0, 0.5))
