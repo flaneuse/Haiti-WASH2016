@@ -144,3 +144,10 @@ admin3 = shp2df(workingDir = paste0(local_wd, 'Haiti_AdminBndry/'),
 
 admin3$df$commune = str_trim(admin3$df$A2_Name)
 admin3$df$departement = str_trim(admin3$df$A1_Name)
+
+
+# Lookup table for Admin1-3 -----------------------------------------------
+admin2_names = admin2$df %>% group_by(admin1 = NAME_1, admin2 = NAME_2) %>%
+  summarise(n = n()) %>% select(-n) %>% 
+  ungroup() %>% 
+  mutate(admin1 = ifelse(admin1 == "L'Artibonite", 'Artibonite', as.character(admin1)))
