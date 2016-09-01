@@ -250,6 +250,7 @@ plotMap = function(df,
                    stroke_width = 0.075,
                    stroke_colour = grey75K,
                    size_label = 4,
+                   label_y = 0.05,
                    fill_scale = NA,
                    fill_limits = NA,
                    bg_fill = '#f6f8fb',#d3dceb', # water #ebf0f9
@@ -351,7 +352,8 @@ plotMap = function(df,
   # -- export ==
   if (exportPlot == TRUE) {
     ggsave(filename = fileName, 
-           width = plotWidth, height = plotHeight, units = "in",
+           width = plotWidth, height = plotHeight, units = "in", 
+           scale = (8.9555/8.1219),
            bg = "transparent", 
            paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
   }
@@ -378,6 +380,7 @@ pairGrid = function (df,
                      sizeDot = 2.5,
                      stroke_colour = grey90K,
                      colorDot = 'YlGnBu',
+                     fill_limits = c(0,1),
                      # S.E. bars
                      colorSE = grey10K,
                      alphaSE = 1,
@@ -437,8 +440,10 @@ pairGrid = function (df,
               data = df,
               nudge_x = label_offset) +
     # Color dots
-    scale_fill_gradientn(colours = brewer.pal(9, colorDot)) +
-    scale_colour_gradientn(colours = brewer.pal(9, colorDot)) +
+    scale_fill_gradientn(colours = brewer.pal(9, colorDot),
+                         limits = fill_limits) +
+    scale_colour_gradientn(colours = brewer.pal(9, colorDot),
+                           limits = fill_limits) +
     # Convert to percentages
     scale_x_continuous(labels = scales::percent) +
     # coord_flip() +

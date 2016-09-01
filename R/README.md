@@ -77,3 +77,7 @@ All maps and visualizations:
 * Clip image to Admin0 polygon
 * Apply "multiply" transparency to raster layer (100% transparency)
 * Apply drop shaadow to the entire raster layer (clipping mask + raster): 90% K, x = 0.02 in., y = 0.02 in., blur = 0.02 in.
+* nudge; bounding box at x = 0.0014", y = 0.126"
+
+#### Choropleths
+* nudge to x = 0.2625" y = 0.7902" (upper left corner)
