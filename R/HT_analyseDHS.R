@@ -33,3 +33,5 @@ source('~/GitHub/Haiti-WASH2016/R/HT_02_importDHS_hh.R')
 source('~/GitHub/Haiti-WASH2016/R/HT_04_improvedToilets.R')
 
 
+# -- Calculation of Improved Water percentages --
+source('~/GitHub/Haiti-WASH2016/R/HT_05_improvedWater.R')
