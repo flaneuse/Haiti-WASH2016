@@ -212,10 +212,12 @@ plotMap(haiti_polygons,
         plot_base = TRUE,
         exportPlot = FALSE)
 
+# -- dot plot --
 pairGrid(toilet_admin2, 
          y_var = 'admin2',
          colorDot = colour_toilet,
          savePlots = TRUE,
+         fill_limits = colour_limits,
          file_name =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm2dot.pdf')
 
 # # -- LOWER BOUND --
