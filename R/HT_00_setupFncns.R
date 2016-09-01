@@ -25,8 +25,8 @@
 local_wd = '~/Documents/USAID/Haiti/rawdata/'
 
 # -- Set aesthetics --
-font_family = 'Lato'
-font_weight = 'bold'
+font_light = 'Lato Light'
+font_normal = 'Lato'
 
 
 # Load libraries ----------------------------------------------------------
@@ -235,11 +235,15 @@ calcPtEst = function(var, # What you want to average
 # Plot Maps --------------------------------------------------------------------
 plotMap = function(df, 
                    admin0, # base map
-                   clipping_mask = admin0, # clipping mask (us. country)
-                   centroids = dhs_geo$centroids,
+                   clipping_mask, # clipping mask (us. country)
+                   centroids = NA,
+                   centroids_var = 'region_name',
                    lakes = NA, # inland water
-                   bounding_x = c(-74.561420581, -71.130578441), 
-                   bounding_y = c(17.47410627, 20.346439224),
+                   bounding_x = c(-74.555, -71.128),
+                   bounding_y = c(17.431, 20.295),
+                   # bounding_x = c(-74.561420581, -71.130578441), 
+                   # bounding_y = c(17.47410627, 20.346439224),
+                   plot_base = TRUE,
                    fill_var = 'id',
                    exportPlot = FALSE, 
                    fileName = 'map.pdf', 
@@ -251,19 +255,34 @@ plotMap = function(df,
                    bg_fill = '#f6f8fb',#d3dceb', # water #ebf0f9
                    lakes_fill = '#0067b9', # inland water
                    base_fill = grey15K, # underlying country
-                   alpha = 0.7, 
+                   font_normal = 'Lato',
+                   font_light = 'Lato Light',
+                   # alpha = 0.7, 
                    title = NA,
                    plotWidth = 10.75, plotHeight = 9) {
   
-  p = ggplot(df, aes(x = long, y = lat, group = group)) + 
+  if(plot_base == TRUE){
+    p = ggplot(df, aes(x = long, y = lat, group = group)) + 
+      
+      # -- base fill the country --
+      geom_polygon(fill = base_fill, data = admin0) +
+      geom_path(colour = stroke_colour, size = stroke_width*3,
+                data = admin0) +
+      # -- themes --
+      theme_void() + 
+      theme(rect = element_rect(fill = '#ffffff', colour = '#ffffff', size = 0, linetype = 1),
+            legend.position = c(0.2, 0.7),
+            panel.background = element_rect(fill = bg_fill))
     
-    # -- base fill the country --
-    geom_polygon(fill = base_fill, data = admin0) +
-    geom_path(colour = stroke_colour, size = stroke_width*3,
-              data = admin0) +
-    
-    # -- choropleth over regions --
-    geom_polygon(aes_string(fill = fill_var)) +
+  } else {
+    p = ggplot(df, aes(x = long, y = lat, group = group)) +
+      # -- themes --
+      theme_void() + 
+      theme(legend.position = c(0.2, 0.7))
+  } 
+  
+  # -- choropleth over regions --
+  p = p + geom_polygon(aes_string(fill = fill_var)) +
     geom_path(colour = stroke_colour, size = stroke_width) +
     
     # -- Admin 0 outline (for clipping if needed) --
@@ -272,18 +291,13 @@ plotMap = function(df,
     
     coord_equal() +
     
-    # -- themes --
-    theme_void() + 
-    theme(rect = element_rect(fill = '#ffffff', colour = '#ffffff', size = 0, linetype = 1),
-          legend.position = c(0.1, 0.8),
-          panel.background = element_rect(fill = bg_fill))
-  
-  
-  # -- add lakes and inland water --
-  if(!is.na(lakes)) {
-    p = p +
-      geom_polygon(fill = lakes_fill, data = lakes) 
-  }
+    
+    
+    # -- add lakes and inland water --
+    if(!is.na(lakes)) {
+      p = p +
+        geom_polygon(fill = lakes_fill, data = lakes) 
+    }
   
   # -- add title --
   if(!is.na(title)){
@@ -305,19 +319,29 @@ plotMap = function(df,
   if(!is.na(centroids)) {
     # define color based on value
     # colours = df %>% 
-      # mutate(case_when(df[[fill_var]] > mean(df[[fill_var]]) ~ '#ffffff',
-                       # TRUE ~ 'black'))
+    # mutate(case_when(df[[fill_var]] > mean(df[[fill_var]]) ~ '#ffffff',
+    # TRUE ~ 'black'))
     
-    # centroids = left_join(centroids, df, by = c('region_name' = 'label'))
+    df_avg =  df %>% 
+      group_by_(centroids_var) %>% 
+      summarise_(var_pct = paste0('llamar::percent(mean(', fill_var,'))'))
+    
+    centroids = left_join(centroids, df_avg, by = c('label' = centroids_var))
     
     p = p +
-      geom_text(aes(label = label, x = long, y = lat, group = 1), 
-                size = size_label, 
+      geom_text(aes(label = label, x = long, y = lat, group = 1),
+                size = size_label,
                 colour = brewer.pal(9, fill_scale)[9],
-                family = 'Segoe UI Semilight',
+                family = font_normal,
+                data = centroids) +
+      geom_text(aes(label = var_pct, x = long, y = lat, group = 1),
+                size = size_label,
+                colour = brewer.pal(9, fill_scale)[9],
+                family = font_light,
+                nudge_y = -label_y,
                 data = centroids)
   }
-    
+  
   # -- resize by bounding_box --
   if(!is.na(bounding_x) & !is.na(bounding_y)) {
     p = p +
@@ -348,9 +372,10 @@ pairGrid = function (df,
                      lb_var = 'lb', # string for lower bound of CI
                      ub_var = 'ub', # string for upper bound of CI
                      # Percent labels
-                     sizePct = 5,
+                     sizePct = 3,
+                     label_offset = 0.02,
                      # Average point
-                     sizeDot = 6,
+                     sizeDot = 4,
                      stroke_colour = grey90K,
                      colorDot = 'YlGnBu',
                      # S.E. bars
@@ -374,7 +399,7 @@ pairGrid = function (df,
                      # Save files
                      savePlots = TRUE,
                      file_name = 'plot.pdf',
-                     width_plot = 6, height_plot = 6
+                     width_plot = 5, height_plot = 10
 ) {
   
   # -- Reorder the dots --
@@ -405,10 +430,15 @@ pairGrid = function (df,
                data = df,
                size = sizeDot,
                shape = 21,
-               colour = stroke_colour
-    ) +
+               colour = stroke_colour) +
+    geom_text(aes_string(x = avg_var, y = y_var,
+                         label = avg_var, colour = avg_var),
+              size = sizePct,
+              data = df,
+              nudge_x = label_offset) +
     # Color dots
     scale_fill_gradientn(colours = brewer.pal(9, colorDot)) +
+    scale_colour_gradientn(colours = brewer.pal(9, colorDot)) +
     # Convert to percentages
     scale_x_continuous(labels = scales::percent) +
     # coord_flip() +
@@ -420,7 +450,7 @@ pairGrid = function (df,
     p = p + 
       facet_wrap(as.formula(paste0('~', facet_var)), scales ='free_y', ncol = n_col)
   }
-
+  
   # -- Draw the underlying comparison --
   # Note: needs to be sent to the back in AI after making
   if(incl_comparison == TRUE){
@@ -445,7 +475,7 @@ pairGrid = function (df,
   # -- Save the main plot --
   if (savePlots){
     ggsave(file_name, 
-           plot = mainPlot,
+           plot = p,
            width = width_plot, height = height_plot,
            bg = 'transparent',
            paper = 'special',
