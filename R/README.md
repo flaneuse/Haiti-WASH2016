@@ -73,4 +73,7 @@ All maps and visualizations:
 * Admin1 boundaries: 0.5 pt. #ffffff
 
 #### Raster layers
+* Group raster slices
+* Clip image to Admin0 polygon
 * Apply "multiply" transparency to raster layer (100% transparency)
+* Apply drop shaadow to the entire raster layer (clipping mask + raster): 90% K, x = 0.02 in., y = 0.02 in., blur = 0.02 in.
