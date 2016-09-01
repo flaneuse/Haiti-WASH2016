@@ -142,14 +142,18 @@ water_admin2$admin1 = factor(water_admin2$admin1, levels = water_admin1$admin1)
 pairGrid(water_admin2, savePlots = F, y_var = 'admin2')
 
 # Admin1 map --------------------------------------------------------------
-haiti_polygons = right_join(x, y, by = c('r'))
+haiti_polygons = right_join(water_admin1_PaP, dhs_geo$df, by = c('region_name' = 'DHSREGFR'))
 
-plotMap(haiti_polygons, 
-        admin0 = hispaniola,
-        clipping_mask = admin0,
-        fill_var = 'avg',
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,         
+        clipping_mask = admin0, 
+        centroids = dhs_geo$centroids,
+        fill_var = 'impr_water_under30min',
         fill_scale = colour_water,
-        fill_limits = c(0.,1))
+        fill_limits = colour_limits,
+        plot_base = FALSE,
+        exportPlot = TRUE,
+        fileName = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprwater30_adm1.pdf')
 
 
 # Export data to krig surface ---------------------------------------------
@@ -157,3 +161,27 @@ plotMap(haiti_polygons,
 write_csv(hh, '~/Documents/USAID/Haiti/dataout/HT_DHS2012_imprsanitation_2016-08-29.csv')
 
 x = calcPtEst('impr_water_dhs', by_var = 'region_urban', design = DHSdesign, df = hh)
+
+
+# Admin2 map --------------------------------------------------------------
+haiti_polygons = left_join(admin2$df, water_admin2, by = c('NAME_2' = 'admin2'))
+
+# -- AVERAGE --
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,         
+        clipping_mask = admin0, 
+        centroids = admin2$centroids,
+        fill_var = 'impr_water_under30min',
+        centroids_var = 'NAME_2',
+        fill_scale = colour_toilet,
+        fill_limits = colour_limits, 
+        plot_base = TRUE,
+        exportPlot = FALSE)
+
+# -- dot plot --
+pairGrid(water_admin2, 
+         y_var = 'admin2',
+         colorDot = colour_water,
+         savePlots = TRUE,
+         fill_limits = colour_limits,
+         file_name =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprwater_adm2dot.pdf')
