@@ -24,7 +24,9 @@
 
 
 # Set colors and other basics ---------------------------------------------
-colour_toilet = 'YlOrBr'
+colour_toilet = 'RdPu'
+colour_od = 'YlOrBr'
+colour_limits = c(0, 0.87881) # same for all maps (improved water, sanitation, open defecation)
 
 # classify improved/ not improved -----------------------------------------
 # DHS claims to use WHO definitions for sanitation; similar to those provided by Dr. Elizabeth Jordan, 
@@ -159,52 +161,75 @@ haiti_polygons = right_join(toilet_admin1_PaP, dhs_geo$df, by = c('region_name' 
 plotMap(haiti_polygons,          
         admin0 = hispaniola,         
         clipping_mask = admin0, 
+        centroids = dhs_geo$centroids,
         fill_var = 'improved_toilet',
         fill_scale = colour_toilet,
-        fill_limits = c(0.05, 0.45), 
+        fill_limits = colour_limits, 
+        plot_base = TRUE,
+        exportPlot = FALSE)
+
+plotMap(haiti_polygons,          
+        admin0 = hispaniola,         
+        clipping_mask = admin0, 
+        centroids = dhs_geo$centroids,
+        fill_var = 'improved_toilet',
+        fill_scale = colour_toilet,
+        fill_limits = colour_limits, 
+        plot_base = FALSE,
         exportPlot = TRUE,
         fileName = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm1.pdf')
 
 
-# -- LOWER BOUND --
-plotMap(haiti_polygons,          
-        admin0 = hispaniola,         
-        clipping_mask = admin0, 
-        fill_var = 'lb',
-        fill_scale = colour_toilet,
-        fill_limits = c(0.05, 0.45))
-
-# -- UPPER BOUND --
-plotMap(haiti_polygons,          
-        admin0 = hispaniola,         
-        clipping_mask = admin0, 
-        fill_var = 'ub',
-        fill_scale = colour_toilet,
-        fill_limits = c(0.05, 0.45))
+# 
+# # -- LOWER BOUND --
+# plotMap(haiti_polygons,          
+#         admin0 = hispaniola,         
+#         clipping_mask = admin0, 
+#         fill_var = 'lb',
+#         fill_scale = colour_toilet,
+#         fill_limits = c(0.05, 0.45))
+# 
+# # -- UPPER BOUND --
+# plotMap(haiti_polygons,          
+#         admin0 = hispaniola,         
+#         clipping_mask = admin0, 
+#         fill_var = 'ub',
+#         fill_scale = colour_toilet,
+#         fill_limits = c(0.05, 0.45))
 
 # Admin2 map --------------------------------------------------------------
 haiti_polygons = left_join(admin2$df, toilet_admin2, by = c('NAME_2' = 'admin2'))
 
 # -- AVERAGE --
-plotMap(haiti_polygons,  
-        admin0 = hispaniola,
-        clipping_mask = admin0,
-        fill_var = 'improved_toilet',
-        fill_scale = colour_toilet,
-        fill_limits = c(0, 0.55))
-
-# -- LOWER BOUND --
-plotMap(haiti_polygons,          
-        admin0 = hispaniola,        
-        clipping_mask = admin0,
-        fill_var = 'lb',
-        fill_scale = colour_toilet,
-        fill_limits = c(0.0, 0.55))
-
-# -- UPPER BOUND --
 plotMap(haiti_polygons,          
         admin0 = hispaniola,         
         clipping_mask = admin0, 
-        fill_var = 'ub',
+        centroids = admin2$centroids,
+        fill_var = 'improved_toilet',
+        centroids_var = 'NAME_2',
         fill_scale = colour_toilet,
-        fill_limits = c(0.0, 0.5))
+        fill_limits = colour_limits, 
+        plot_base = TRUE,
+        exportPlot = FALSE)
+
+pairGrid(toilet_admin2, 
+         y_var = 'admin2',
+         colorDot = colour_toilet,
+         savePlots = FALSE,
+         file_name =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm2dot.pdf')
+
+# # -- LOWER BOUND --
+# plotMap(haiti_polygons,          
+#         admin0 = hispaniola,        
+#         clipping_mask = admin0,
+#         fill_var = 'lb',eé
+#         fill_scale = colour_toilet,
+#         fill_limits = c(0.0, 0.55))
+# 
+# # -- UPPER BOUND --
+# plotMap(haiti_polygons,          
+#         admin0 = hispaniola,         
+#         clipping_mask = admin0, 
+#         fill_var = 'ub',
+#         fill_scale = colour_toilet,
+#         fill_limits = c(0.0, 0.5))
