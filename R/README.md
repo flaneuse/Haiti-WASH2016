@@ -66,6 +66,11 @@ All maps and visualizations:
 ### `01_HTI_.pdf`
 
 ### Adobe Illustrator cleanup of maps
-* Apply outer glow to Hispaniola to simulate water (multiply, 90%, 0.1 in., #81accc)
-* Apply transparent-to-white mask along edge of bounding box
-*
+#### Basemap
+* Apply blue border with Gaussian blur to Hispaniola to simulate water (9 pt., 40 px. blur, #89a3d1)
+* Apply white border (25 pt) along edge of bounding box with 30 px. Gaussian blur
+* Country outline: 0.25 pt. 90% K
+* Admin1 boundaries: 0.5 pt. #ffffff
+
+#### Raster layers
+* Apply "multiply" transparency to raster layer (100% transparency)
