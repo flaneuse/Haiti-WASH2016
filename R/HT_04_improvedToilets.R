@@ -215,7 +215,7 @@ plotMap(haiti_polygons,
 pairGrid(toilet_admin2, 
          y_var = 'admin2',
          colorDot = colour_toilet,
-         savePlots = FALSE,
+         savePlots = TRUE,
          file_name =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm2dot.pdf')
 
 # # -- LOWER BOUND --
@@ -233,3 +233,6 @@ pairGrid(toilet_admin2,
 #         fill_var = 'ub',
 #         fill_scale = colour_toilet,
 #         fill_limits = c(0.0, 0.5))
+
+# Open defecation ---------------------------------------------------------
+

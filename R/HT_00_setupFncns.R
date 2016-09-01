@@ -373,9 +373,9 @@ pairGrid = function (df,
                      ub_var = 'ub', # string for upper bound of CI
                      # Percent labels
                      sizePct = 3,
-                     label_offset = 0.02,
+                     label_offset = 0.06,
                      # Average point
-                     sizeDot = 4,
+                     sizeDot = 2.5,
                      stroke_colour = grey90K,
                      colorDot = 'YlGnBu',
                      # S.E. bars
@@ -432,7 +432,7 @@ pairGrid = function (df,
                shape = 21,
                colour = stroke_colour) +
     geom_text(aes_string(x = avg_var, y = y_var,
-                         label = avg_var, colour = avg_var),
+                         label = paste0('llamar::percent(', avg_var,')'), colour = avg_var),
               size = sizePct,
               data = df,
               nudge_x = label_offset) +
@@ -443,7 +443,9 @@ pairGrid = function (df,
     scale_x_continuous(labels = scales::percent) +
     # coord_flip() +
     theme_xgrid() +
-    theme(axis.title.x = element_blank())
+    theme(axis.title.x = element_blank(),
+          axis.text.y = element_text(size = 8), 
+          strip.text = element_text(size = 9, family = font_normal, colour = grey75K))
   
   # -- Facet if indicated --
   if(!is.na(facet_var)) {
