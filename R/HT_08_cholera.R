@@ -86,15 +86,29 @@ p = plotMap(cholera_map,
             clipping_mask = admin0,
             fill_var = 'prevalence2014',
             fill_scale = colour_cholera,
-            fill_limits = c(0.5, 3.5))
+            fill_limits = c(0.5, 3.5),
+            plot_base = FALSE,
+            exportPlot = TRUE,
+            fileName =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf'
+            )
 
 p +
   geom_point(aes(x = lon, y = lat, group = 1),
              size = size_point, data = chol_cities, 
              colour = brewer.pal(9, colour_cholera)[9],
              fill = brewer.pal(9, colour_cholera)[7],
-             shape = 21) +
+             shape = 21) +i
   geom_text(aes(x = lon, y = lat, group = 1,
-                label = locality), data = chol_cities) +
+                label = locality), 
+            family = 'Lato',
+            colour = brewer.pal(9, colour_cholera)[8],
+            data = chol_cities) +
   scale_fill_gradientn(colours = brewer.pal(9, colour_cholera), 
-                       limits = c(0.5, 3.5), na.value = grey15K)
+                       limits = c(0.5, 3.5), na.value = grey15K) +
+  theme(legend.position = 'none')
+
+ggsave(filename = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf', 
+       width = 10.75, height = 9, units = "in",
+       bg = "transparent", 
+       scale = (8.9555/8.1219),
+       paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
