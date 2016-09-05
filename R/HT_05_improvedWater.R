@@ -194,7 +194,12 @@ urb_rural_imprwater = calcPtEst('impr_water_under30min', by_var = 'region_urban'
 urb_rural_imprwater = urb_rural_imprwater %>% 
   separate(region_urban, c('region', 'urban'), sep = '_and_')
 
+ur_order_h2o = urb_rural_imprwater %>% 
+  filter(urban == 'urban') %>% 
+  arrange(avg)
 
-ggplot(urb_rural_imprwater, aes(x = avg, y = region, 
-                                fill = avg, shape = urban)) +
-  geom_point(size = 4)
+urb_rural_imprwater$region = factor(urb_rural_imprwater$region, c(ur_order_h2o$region, 'Aire Métropolitaine'))
+
+
+
+ur_pairGrid(urb_rural_imprwater, fill_scale = 'YlGnBu', fill_limits = colour_limits)

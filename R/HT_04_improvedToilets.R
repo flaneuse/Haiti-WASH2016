@@ -238,3 +238,18 @@ pairGrid(toilet_admin2,
 
 # Open defecation ---------------------------------------------------------
 
+# urban/rural splot -------------------------------------------------------
+
+urb_rural_toilet = calcPtEst('improved_toilet', by_var = 'region_urban', design = DHSdesign, df = hh)
+
+urb_rural_toilet = urb_rural_toilet %>% 
+  separate(region_urban, c('region', 'urban'), sep = '_and_')
+
+ur_order_toilet = urb_rural_toilet %>% 
+  filter(urban == 'urban') %>% 
+  arrange(avg)
+
+urb_rural_toilet$region = factor(urb_rural_toilet$region, c(ur_order_toilet$region, 'Aire Métropolitaine'))
+
+
+ur_pairGrid(urb_rural_toilet, fill_scale = colour_toilet, fill_limits = colour_limits)
