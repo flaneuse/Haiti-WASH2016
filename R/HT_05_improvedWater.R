@@ -160,7 +160,6 @@ plotMap(haiti_polygons,
 # For krigging, unnecessary to apply weights to each EA (since same)
 write_csv(hh, '~/Documents/USAID/Haiti/dataout/HT_DHS2012_imprsanitation_2016-08-29.csv')
 
-x = calcPtEst('impr_water_dhs', by_var = 'region_urban', design = DHSdesign, df = hh)
 
 
 # Admin2 map --------------------------------------------------------------
@@ -185,3 +184,17 @@ pairGrid(water_admin2,
          savePlots = TRUE,
          fill_limits = colour_limits,
          file_name =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprwater_adm2dot.pdf')
+
+
+
+# urban/rural splot -------------------------------------------------------
+
+urb_rural_imprwater = calcPtEst('impr_water_under30min', by_var = 'region_urban', design = DHSdesign, df = hh)
+
+urb_rural_imprwater = urb_rural_imprwater %>% 
+  separate(region_urban, c('region', 'urban'), sep = '_and_')
+
+
+ggplot(urb_rural_imprwater, aes(x = avg, y = region, 
+                                fill = avg, shape = urban)) +
+  geom_point(size = 4)

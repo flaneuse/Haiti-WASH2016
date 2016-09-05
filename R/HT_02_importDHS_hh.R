@@ -154,8 +154,8 @@ hh = hh %>%
 
 # Convert regions into urban-rural + region.
 hh = hh %>% 
-  mutate(region_urban = case_when(hh$urban == 1 ~ paste0(hh$region_name, ' - urban'),
-                                  hh$urban == 0 ~ paste0(hh$region_name, ' - rural'),
+  mutate(region_urban = case_when(hh$urban == 1 ~ paste0(hh$region_name, '_and_urban'),
+                                  hh$urban == 0 ~ paste0(hh$region_name, '_and_rural'),
                                   TRUE ~ NA_character_))
 
 # -- Checks that recoding doesn't change the # of values --
