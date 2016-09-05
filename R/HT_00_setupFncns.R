@@ -510,6 +510,9 @@ ur_pairGrid = function(df,
                  fill = avg, shape = urban)) +
     geom_segment(aes(x = lb, xend = ub, y = region, yend = region), alpha = 0.2) +
     geom_point(size = 4, colour = grey90K) +
+    geom_text(aes(label = N), 
+              nudge_y = 0.2,
+              size = 2.5, colour = grey90K) +
     scale_shape_manual(values = c('urban' = 22, 'rural' = 21)) +
     scale_fill_gradientn(colours = brewer.pal(9, fill_scale), 
                          limits = fill_limits) + 
