@@ -30,13 +30,23 @@ size_point = 2.5
 
 # List of priority communes for cholera interventions, as identified by UNICEF
 # Raw data file cleaned up to match commune names by hand; in separate column ('commune' instead of 'communes')
-cholera = read_excel('~/Documents/USAID/Haiti/rawdata/Haiti_cholera_UNICEF/Cholera Response Commune and Total Sanitation Campaign August 2016.xlsx', 
+cholera = read_excel(paste0(local_wd, 'Haiti_cholera_UNICEF/Cholera Response Commune and Total Sanitation Campaign August 2016.xlsx'), 
                      sheet = 2, skip = 1)
 
 
 # List of cholera hotspot cities, where infections tend to occur.
-chol_cities = read_csv('~/Documents/USAID/Haiti/rawdata/Haiti_cholera_UNICEF/Haiti_cholera_hotspotcities_UNICEF_2016-08-29.csv')
+chol_cities = read_csv(paste0(local_wd, 'Haiti_cholera_UNICEF/Haiti_cholera_hotspotcities_UNICEF_2016-08-29.csv'))
 
+# Cholera by Admin1 -------------------------------------------------------
+# Data are from PAHO/WHO, contributed by UN OCHA to HDX Humanitarian Data Exchange
+# https://data.humdata.org/dataset/7b7bde8e-cf30-4d11-ab58-dd5091156d81
+
+chol_admin1 = read_excel(paste0(local_wd, 'Haiti_cholera-cases-per-month-and-per-region-since-2015_PAHO_Hdx.xlsx'))
+
+chol_byMonth = read_excel(paste0(local_wd, 'Haiti_cholera-cases-per-month-since-2010_PAHO_Hdx.xlsx'), col_types = c('date', 'numeric', 'numeric'))
+
+pop_admin1 = read_excel(paste0(local_wd, 'Haiti_population_Admin1_IHSI2015POP.xlsx')) %>% 
+  select(Departement = Dept, pop = POP_Total)
 
 
 # Clean data --------------------------------------------------------------
@@ -55,6 +65,16 @@ cholera = cholera %>%
 
 # Merge City with Haiti
 chol_cities = chol_cities %>% mutate(loc = paste0(city, ', Haiti'))
+
+# Merge cholera by admin1 with departemental population; calc rate
+# recode pop Grande-Anse name
+pop_admin1 = pop_admin1 %>% 
+  mutate(Departement = ifelse(Departement == 'Grande Anse', 'Grande-Anse', Departement))
+
+chol_admin1 = left_join(chol_admin1, pop_admin1, by = 'Departement')
+
+chol_admin1 = chol_admin1 %>% 
+  mutate(rate = Cases/pop)
 
 # Geocode cholera cities --------------------------------------------------
 chol_cities = geocode(chol_cities$loc, messaging = TRUE, output = 'more')
@@ -89,7 +109,7 @@ p = plotMap(cholera_map,
             fill_limits = c(0.5, 3.5),
             plot_base = FALSE,
             exportPlot = TRUE,
-            fileName =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf'
+            fileName =  '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf'
             )
 
 p +
@@ -97,7 +117,7 @@ p +
              size = size_point, data = chol_cities, 
              colour = brewer.pal(9, colour_cholera)[9],
              fill = brewer.pal(9, colour_cholera)[7],
-             shape = 21) +i
+             shape = 21) +
   geom_text(aes(x = lon, y = lat, group = 1,
                 label = locality), 
             family = 'Lato',
@@ -112,3 +132,37 @@ ggsave(filename = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/
        bg = "transparent", 
        scale = (8.9555/8.1219),
        paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
+
+
+# Cholera by month, region --------------------------------------------------------
+chol_admin1 %>% group_by(Departement) %>% 
+  summarise(cases = sum(Cases, na.rm = TRUE), 
+            deaths = sum(Deaths, na.rm = TRUE),
+            rate = signif(max(rate, na.rm = TRUE), digits = 2)) %>% 
+  mutate(fc = rate/0.00059) %>% 
+  arrange(desc(rate))
+
+x = full_join(admin1$df, x, by = c('A1_Name' = 'Departement'))
+plotMap(x, 
+        admin0 = hispaniola,
+        clipping_mask = admin0,
+        fill_var = 'deaths',
+        fill_scale = colour_cholera,
+        fill_limits = c(0, 100),
+        plot_base = FALSE,
+        exportPlot = FALSE,
+        fileName =  '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf'
+)
+
+# Cases by Dept. over time
+ggplot(chol_admin1, aes(x = Month, y = Cases)) +
+  geom_line() + 
+  facet_wrap(~ Departement)
+
+# Rate of cases by Dept. over time
+ggplot(chol_admin1, aes(x = Month, y = rate)) +
+  geom_line() + 
+  facet_wrap(~ Departement)
+
+ggplot(chol_byMonth, aes(x = Month, y = `Monthly cases`)) +
+  geom_line()
