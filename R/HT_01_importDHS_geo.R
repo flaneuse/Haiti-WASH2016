@@ -154,3 +154,94 @@ admin2_names = admin2$df %>% group_by(admin1 = NAME_1, admin2 = NAME_2) %>%
   summarise(n = n()) %>% select(-n) %>% 
   ungroup() %>% 
   mutate(admin1 = ifelse(admin1 == "L'Artibonite", 'Artibonite', as.character(admin1)))
+
+
+# Secondary cities to label -----------------------------------------------
+# Population taken from Wikipedia
+# https://en.wikipedia.org/wiki/List_of_cities_in_Haiti
+sec_cities = data.frame(city = c('Port-au-Prince',
+                                 'Carrefour',
+                                 'Gonaïves',
+                                 'Cap-Haïtien',
+                                 'Saint-Marc',
+                                 'Croix-des-Bouquets',
+                                 'Port-de-Paix',
+                                 'Jacmel',
+                                 'Les Cayes',
+                                 'Hinche',
+                                 'Mirebalais',
+                                 'Cabaret',
+                                 'Jérémie'),
+                        population = c(897859,
+                                       465019,
+                                       324043,
+                                       249541,
+                                       242485,
+                                       227012,
+                                       185494,
+                                       170289,
+                                       137952,
+                                       109916,
+                                       88899,
+                                       62063,
+                                       122149))
+
+sec_fill = grey15K
+sec_stroke = grey60K
+
+sec_cities = sec_cities %>% mutate(loc = paste0(city, ', Haiti'))
+
+# Geocode secondary cities --------------------------------------------------
+sec_cities_geo = geocode(sec_cities$loc, messaging = TRUE, output = 'more')
+
+sec_cities = sec_cities %>% 
+  bind_cols(sec_cities_geo) %>% 
+  mutate(long = lon)
+
+# Visually check they're okay
+
+info_popup <- paste0("<strong>Dep.: </strong>", 
+                     sec_cities$administrative_area_level_1,
+                     "<br><strong>city: </strong> <br>",
+                     sec_cities$address)
+
+leaflet(sec_cities) %>% 
+  addCircles(~lon, ~lat, radius = 4000, opacity =  1,
+             color = ~paired(administrative_area_level_1),
+             popup = info_popup) %>% 
+  addProviderTiles("Thunderforest.Landscape")
+
+
+# Blank map
+p = plotMap(admin0, 
+            admin0 = hispaniola,
+            clipping_mask = admin0,
+            plot_base = FALSE,
+            exportPlot = FALSE,
+            fileName =  '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_sec_cities.pdf'
+)
+
+p +
+  geom_point(aes(x = lon, y = lat, group = 1),
+             size = 2.5, 
+             data = sec_cities, 
+             colour = sec_stroke,
+             fill = sec_fill,
+             shape = 21) +
+  geom_text(aes(x = lon, y = lat, 
+                group = 1,
+                size = population,
+                label = city),
+            hjust = 0,
+            nudge_y = 0.05,
+            family = 'Lato Light',
+            colour = sec_stroke,
+            data = sec_cities) +
+  scale_size_continuous(range = c(3,4)) +
+  theme(legend.position = 'none')
+
+ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_sec_cities.pdf', 
+       width = 10.75, height = 9, units = "in",
+       bg = "transparent", 
+       scale = (8.9555/8.1219),
+       paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
