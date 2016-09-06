@@ -252,4 +252,45 @@ ur_order_toilet = urb_rural_toilet %>%
 urb_rural_toilet$region = factor(urb_rural_toilet$region, c(ur_order_toilet$region, 'Aire Métropolitaine'))
 
 
-ur_pairGrid(urb_rural_toilet, fill_scale = colour_toilet, fill_limits = colour_limits)
+p = ur_pairGrid(urb_rural_toilet, fill_scale = colour_toilet, fill_limits = colour_limits) 
+
+
+# export color bars -------------------------------------------------------
+p + theme(legend.position = 'right', legend.direction = 'horizontal',
+          legend.text = element_text(colour = grey60K, family = 'Lato Light', size = 8)
+) +
+  scale_fill_gradientn(colours = brewer.pal(9, colour_toilet), 
+                       limits = colour_limits,
+                       labels = scales::percent)
+
+ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_RdPuscale.pdf', 
+       width = 10.75, height = 9, units = "in",
+       bg = "transparent", 
+       scale = (8.9555/8.1219),
+       paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
+
+p + theme(legend.position = 'right', legend.direction = 'horizontal',
+          legend.text = element_text(colour = grey60K, family = 'Lato Light', size = 8)
+) +
+  scale_fill_gradientn(colours = brewer.pal(9, colour_water), 
+                       limits = colour_limits,
+                       labels = scales::percent)
+
+ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_YlGnBuscale.pdf', 
+       width = 10.75, height = 9, units = "in",
+       bg = "transparent", 
+       scale = (8.9555/8.1219),
+       paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
+
+p + theme(legend.position = 'right', legend.direction = 'horizontal',
+          legend.text = element_text(colour = grey60K, family = 'Lato Light', size = 8)
+) +
+  scale_fill_gradientn(colours = brewer.pal(9, colour_od), 
+                       limits = colour_limits,
+                       labels = scales::percent)
+
+ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_YlOrBrscale.pdf', 
+       width = 10.75, height = 9, units = "in",
+       bg = "transparent", 
+       scale = (8.9555/8.1219),
+       paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
