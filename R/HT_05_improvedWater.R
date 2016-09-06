@@ -202,4 +202,5 @@ urb_rural_imprwater$region = factor(urb_rural_imprwater$region, c(ur_order_h2o$r
 
 
 
-ur_pairGrid(urb_rural_imprwater, fill_scale = 'YlGnBu', fill_limits = colour_limits)
+ur_pairGrid(urb_rural_imprwater, fill_scale = 'YlGnBu', fill_limits = colour_limits,
+            file_name = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_UR_water30.pdf')

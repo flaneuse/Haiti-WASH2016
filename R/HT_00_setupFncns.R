@@ -504,7 +504,10 @@ pairGrid = function (df,
 
 ur_pairGrid = function(df, 
                        fill_scale = 'YlGnBu',
-                       fill_limits){
+                       fill_limits,
+                       savePlots = TRUE,
+                       file_name = 'plot.pdf',
+                       width_plot = 7, height_plot = 10){
   
   ggplot(df, aes(x = avg, y = region,
                  fill = avg, shape = urban)) +
@@ -517,5 +520,17 @@ ur_pairGrid = function(df,
     scale_fill_gradientn(colours = brewer.pal(9, fill_scale), 
                          limits = fill_limits) + 
     theme_xgrid()
+  
+  # -- Save the main plot --
+  if (savePlots){
+    ggsave(file_name, 
+           width = width_plot, height = height_plot,
+           bg = 'transparent',
+           paper = 'special',
+           units = 'in',
+           useDingbats=FALSE,
+           compress = FALSE,
+           dpi = 300)
+  } 
 }
 

@@ -252,7 +252,9 @@ ur_order_toilet = urb_rural_toilet %>%
 urb_rural_toilet$region = factor(urb_rural_toilet$region, c(ur_order_toilet$region, 'Aire Métropolitaine'))
 
 
-p = ur_pairGrid(urb_rural_toilet, fill_scale = colour_toilet, fill_limits = colour_limits) 
+p = ur_pairGrid(urb_rural_toilet, fill_scale = colour_toilet, fill_limits = colour_limits,
+                file_name = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_UR_toilets.pdf') 
+
 
 
 # export color bars -------------------------------------------------------
