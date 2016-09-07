@@ -508,9 +508,9 @@ ur_pairGrid = function(df,
                        savePlots = TRUE,
                        file_name = 'plot.pdf',
                        size_between = 0.5,
-                       size_SE = 4,
+                       size_SE = 2,
                        alpha_SE = 0.2,
-                       width_plot = 4.75, height_plot = 9.375){
+                       width_plot = 4.5, height_plot = 9.375){
   
   p = ggplot(df, aes(x = avg, y = region,
                      fill = avg, shape = urban)) +
@@ -527,7 +527,7 @@ ur_pairGrid = function(df,
     # -- Region average --
     geom_point(aes(x = region_avg),
                size = 2.5, 
-               colour = 'white', fill = grey75K,
+               colour = 'white', fill = grey60K,
                shape = 21,
                data = df %>% filter(urban == 'urban')) +
     # -- N --

@@ -120,7 +120,7 @@ water_dhs = calcPtEst('impr_water_dhs', by_var = 'dhs_region', design = DHSdesig
 
 # -- By Admin1 + Port-au-Prince --
 water_admin1_PaP = calcPtEst('impr_water_under30min', by_var = 'region_name', design = DHSdesign, df = hh)
-# water_admin1_PaP = calcPtEst('improved_water', by_var = 'region_name', design = DHSdesign, df = hh)
+water_bottled_admin1_PaP = calcPtEst('impr_water_dhs', by_var = 'region_name', design = DHSdesign, df = hh)
 
 # -- By Admin1 --
 water_admin1 = calcPtEst('impr_water_under30min', by_var = 'admin1', design = DHSdesign, df = hh)
