@@ -135,7 +135,7 @@ ggsave(filename = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/
 
 
 # Cholera by month, region --------------------------------------------------------
-chol_admin1 %>% group_by(Departement) %>% 
+x = chol_admin1 %>% group_by(Departement) %>% 
   summarise(cases = sum(Cases, na.rm = TRUE), 
             deaths = sum(Deaths, na.rm = TRUE),
             rate = signif(max(rate, na.rm = TRUE), digits = 2)) %>% 
@@ -146,9 +146,9 @@ x = full_join(admin1$df, x, by = c('A1_Name' = 'Departement'))
 plotMap(x, 
         admin0 = hispaniola,
         clipping_mask = admin0,
-        fill_var = 'deaths',
+        fill_var = 'cases',
         fill_scale = colour_cholera,
-        fill_limits = c(0, 100),
+        fill_limits = c(0, 20000),
         plot_base = FALSE,
         exportPlot = FALSE,
         fileName =  '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf'
