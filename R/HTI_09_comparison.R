@@ -15,7 +15,8 @@ ggplot(comp, aes(y = region_name, x = indicator,
                 colour = label_colour),
             size = 4,
             family = font_normal) +
-  scale_fill_gradientn(colors = brewer.pal(9, colour_water)) +
+  scale_fill_gradientn(colors = brewer.pal(9, colour_water),
+                       limits = colour_limits) +
   scale_colour_identity() +
   theme_xylab() +
   theme(axis.title = element_blank())
