@@ -153,7 +153,7 @@ plotMap(haiti_polygons,
         fill_limits = colour_limits,
         plot_base = FALSE,
         exportPlot = TRUE,
-        fileName = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprwater30_adm1.pdf')
+        fileName = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprwater30_adm1.pdf')
 
 
 # Export data to krig surface ---------------------------------------------
@@ -183,7 +183,7 @@ pairGrid(water_admin2,
          colorDot = colour_water,
          savePlots = TRUE,
          fill_limits = colour_limits,
-         file_name =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprwater_adm2dot.pdf')
+         file_name =  '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprwater_adm2dot.pdf')
 
 
 
@@ -192,13 +192,16 @@ pairGrid(water_admin2,
 urb_rural_imprwater = calcPtEst('impr_water_under30min', by_var = 'region_urban', design = DHSdesign, df = hh)
 
 urb_rural_imprwater = urb_rural_imprwater %>% 
-  separate(region_urban, c('region', 'urban'), sep = '_and_')
+  separate(region_urban, c('region', 'urban'), sep = '_and_') %>% 
+  ungroup() %>% 
+  arrange(region,urban) %>% 
+  mutate(lagged = lag(avg))
 
 ur_order_h2o = urb_rural_imprwater %>% 
   filter(urban == 'urban') %>% 
   arrange(avg)
 
-urb_rural_imprwater$region = factor(urb_rural_imprwater$region, c(ur_order_h2o$region, 'Aire Métropolitaine'))
+urb_rural_imprwater$region = factor(urb_rural_imprwater$region, c(ur_order_h2o$region))
 
 
 

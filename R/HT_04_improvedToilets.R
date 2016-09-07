@@ -177,7 +177,7 @@ plotMap(haiti_polygons,
         fill_limits = colour_limits, 
         plot_base = FALSE,
         exportPlot = TRUE,
-        fileName = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm1.pdf')
+        fileName = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm1.pdf')
 
 
 # 
@@ -218,7 +218,7 @@ pairGrid(toilet_admin2,
          colorDot = colour_toilet,
          savePlots = TRUE,
          fill_limits = colour_limits,
-         file_name =  '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm2dot.pdf')
+         file_name =  '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm2dot.pdf')
 
 # # -- LOWER BOUND --
 # plotMap(haiti_polygons,          
@@ -243,7 +243,10 @@ pairGrid(toilet_admin2,
 urb_rural_toilet = calcPtEst('improved_toilet', by_var = 'region_urban', design = DHSdesign, df = hh)
 
 urb_rural_toilet = urb_rural_toilet %>% 
-  separate(region_urban, c('region', 'urban'), sep = '_and_')
+  separate(region_urban, c('region', 'urban'), sep = '_and_') %>% 
+  ungroup() %>% 
+  arrange(region,urban) %>% 
+  mutate(lagged = lag(avg))
 
 ur_order_toilet = urb_rural_toilet %>% 
   filter(urban == 'urban') %>% 
