@@ -223,7 +223,7 @@ p = plotMap(admin0,
 
 p +
   geom_point(aes(x = lon, y = lat, group = 1),
-             size = 2.5, 
+             size = 2, 
              data = sec_cities, 
              colour = sec_stroke,
              fill = sec_fill,
