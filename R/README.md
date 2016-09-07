@@ -73,6 +73,7 @@ All maps and visualizations:
 * Admin1 boundaries: 0.5 pt. #ffffff
 
 #### Raster layers
+* Export from ArcMap as .ai: 720 dpi, RGB, "Vectorize layers with bitmap markers/fill", "Convert Marker Shapes to Polygons"
 * Group raster slices
 * Clip image to Admin0 polygon
 * Apply "multiply" transparency to raster layer (100% transparency)
@@ -81,3 +82,6 @@ All maps and visualizations:
 
 #### Choropleths
 * nudge to x = 0.2625" y = 0.7902" (upper left corner)
+
+#### Export to .pdf
+* AI preset High Quality Print with "PDF/X-4:2010" (under "standard")
