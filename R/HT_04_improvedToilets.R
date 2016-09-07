@@ -210,7 +210,8 @@ plotMap(haiti_polygons,
         fill_scale = colour_toilet,
         fill_limits = colour_limits, 
         plot_base = TRUE,
-        exportPlot = FALSE)
+        exportPlot = TRUE,
+        fileName = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm2.pdf')
 
 # -- dot plot --
 pairGrid(toilet_admin2, 
@@ -248,9 +249,13 @@ urb_rural_toilet = urb_rural_toilet %>%
   arrange(region,urban) %>% 
   mutate(lagged = lag(avg))
 
+toilet_avg = toilet_admin1_PaP %>% select(region = region_name, region_avg = avg)
+
+urb_rural_toilet = left_join(urb_rural_toilet, toilet_avg, by = 'region')
+
 ur_order_toilet = urb_rural_toilet %>% 
   filter(urban == 'urban') %>% 
-  arrange(avg)
+  arrange(region_avg)
 
 urb_rural_toilet$region = factor(urb_rural_toilet$region, c(ur_order_toilet$region, 'Aire Métropolitaine'))
 

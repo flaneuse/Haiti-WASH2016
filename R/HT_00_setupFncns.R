@@ -509,21 +509,52 @@ ur_pairGrid = function(df,
                        file_name = 'plot.pdf',
                        width_plot = 7, height_plot = 10){
   
-  ggplot(df, aes(x = avg, y = region,
-                 fill = avg, shape = urban)) +
-    geom_segment(aes(x = lb, xend = ub, y = region, yend = region), alpha = 0.2) +
+  p = ggplot(df, aes(x = avg, y = region,
+                     fill = avg, shape = urban)) +
+    geom_segment(aes(x = lb, xend = ub, y = region, yend = region), 
+                 size = 5,
+                 colour = grey75K, 
+                 alpha = 0.1) +
+    geom_segment(aes(x = avg, xend = lagged, y = region, yend = region), 
+                 size = 0.5,
+                 alpha = 1,
+                 colour = grey75K,
+                 data = df %>% filter(urban == 'urban')) +
     geom_point(size = 4, colour = grey90K) +
+    # -- Region average --
+    geom_point(aes(x = region_avg),
+               size = 2.5, 
+               colour = grey90K, fill = grey75K,
+               shape = 21,
+               data = df %>% filter(urban == 'urban')) +
     geom_text(aes(label = N), 
-              nudge_y = 0.2,
+              nudge_x = 0.05,
+              family = 'Lato Light',
               size = 2.5, colour = grey90K) +
+    geom_text(aes(label = llamar::percent(avg, ndigits = 0),
+                  colour = avg), 
+              nudge_y = 0.2,
+              family = 'Lato Light',
+              size = 3.5) +
+    geom_text(aes(label = llamar::percent(region_avg, ndigits = 0),
+                  x = region_avg), 
+              nudge_y = 0.2,
+              family = 'Lato Light',
+              colour = grey75K,
+              size = 3.5,
+              data = df %>% filter(urban == 'urban')) +
     scale_shape_manual(values = c('urban' = 22, 'rural' = 21)) +
     scale_fill_gradientn(colours = brewer.pal(9, fill_scale), 
                          limits = fill_limits) + 
+    scale_colour_gradientn(colours = brewer.pal(9, fill_scale), 
+                           limits = fill_limits) + 
+    scale_x_continuous(labels = scales::percent) +
     theme_xgrid()
   
   # -- Save the main plot --
   if (savePlots){
     ggsave(file_name, 
+           plot = p,
            width = width_plot, height = height_plot,
            bg = 'transparent',
            paper = 'special',
@@ -532,5 +563,7 @@ ur_pairGrid = function(df,
            compress = FALSE,
            dpi = 300)
   } 
+  
+  return(p)
 }
 

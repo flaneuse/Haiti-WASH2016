@@ -197,9 +197,13 @@ urb_rural_imprwater = urb_rural_imprwater %>%
   arrange(region,urban) %>% 
   mutate(lagged = lag(avg))
 
+water_avg = water_admin1_PaP %>% select(region = region_name, region_avg = avg)
+
+urb_rural_imprwater = left_join(urb_rural_imprwater, water_avg, by = 'region')
+
 ur_order_h2o = urb_rural_imprwater %>% 
   filter(urban == 'urban') %>% 
-  arrange(avg)
+  arrange(region_avg)
 
 urb_rural_imprwater$region = factor(urb_rural_imprwater$region, c(ur_order_h2o$region))
 
