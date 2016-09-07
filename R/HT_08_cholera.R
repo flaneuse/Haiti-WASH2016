@@ -54,10 +54,14 @@ pop_admin1 = read_excel(paste0(local_wd, 'Haiti_population_Admin1_IHSI2015POP.xl
 cholera = cholera %>% 
   # Remove blank / rows or ones w/ coded data.
   filter(!is.na(Priority)) %>% 
+  mutate(response = `Cholera Response (Mid-term Plan)`) 
+
+cholera = cholera %>% 
   # Encode Category based on 2016 UNICEF classification
-  mutate(prevalence2016 = factor(`Cholera Response (Mid-term Plan)`, 
-                                 levels = c('C', 'B' ,'A'),
-                                 labels = c('third priority', 'second priority', 'first priority')),
+  mutate(prevalence2016 = case_when(cholera$response == 'C' ~ 3, 
+                                    cholera$response == 'B' ~ 2, 
+                                    cholera$response == 'A' ~ 1,
+                                    TRUE ~ NA_real_),
          prevalence2014 = ifelse(Priority == 'Phase 1', 2,
                                  ifelse(Priority == 'Phase 2', 1, NA)),
          commune = str_trim(commune),
@@ -104,9 +108,9 @@ cholera_map = full_join(cholera, admin3$df, by = c('commune', 'departement'))
 p = plotMap(cholera_map, 
             admin0 = hispaniola,
             clipping_mask = admin0,
-            fill_var = 'prevalence2014',
+            fill_var = 'prevalence2016',
             fill_scale = colour_cholera,
-            fill_limits = c(0.5, 3.5),
+            fill_limits = c(0.5, 4),
             plot_base = FALSE,
             exportPlot = TRUE,
             fileName =  '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf'
@@ -127,7 +131,7 @@ p +
                        limits = c(0.5, 3.5), na.value = grey15K) +
   theme(legend.position = 'none')
 
-ggsave(filename = '~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf', 
+ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_cholera_choro.pdf', 
        width = 10.75, height = 9, units = "in",
        bg = "transparent", 
        scale = (8.9555/8.1219),
