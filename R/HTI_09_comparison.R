@@ -21,7 +21,7 @@ ggplot(comp, aes(y = region_name, x = indicator,
   theme_xylab() +
   theme(axis.title = element_blank())
 
-ggsave('~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_comp_YlGnBu.pdf', 
+ggsave('~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_comp_YlGnBu.pdf', 
        width = 2.9, height = 6.4,
        bg = 'transparent',
        paper = 'special',
@@ -42,7 +42,7 @@ ggplot(comp, aes(y = region_name, x = indicator,
   theme_xylab() +
   theme(axis.title = element_blank())
 
-ggsave('~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_comp_RdPu.pdf', 
+ggsave('~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_comp_RdPu.pdf', 
        width = 2.9, height = 6.4,
        bg = 'transparent',
        paper = 'special',
@@ -67,7 +67,7 @@ ggplot(comp, aes(y = region_name, x = value,
   facet_wrap(~indicator) +
   theme_xgrid()
 
-ggsave('~/Creative Cloud Files/MAV/Haiti_WASH-PAD_2016-09/exported_R/HTI_comp_dot_RdPu.pdf', 
+ggsave('~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_comp_dot_RdPu.pdf', 
        width = 6, height = 6.4,
        bg = 'transparent',
        paper = 'special',
