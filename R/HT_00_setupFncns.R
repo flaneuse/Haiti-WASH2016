@@ -507,16 +507,19 @@ ur_pairGrid = function(df,
                        fill_limits,
                        savePlots = TRUE,
                        file_name = 'plot.pdf',
-                       width_plot = 7, height_plot = 10){
+                       size_between = 0.5,
+                       size_SE = 4,
+                       alpha_SE = 0.2,
+                       width_plot = 4.75, height_plot = 9.375){
   
   p = ggplot(df, aes(x = avg, y = region,
                      fill = avg, shape = urban)) +
     geom_segment(aes(x = lb, xend = ub, y = region, yend = region), 
-                 size = 5,
+                 size = size_SE,
                  colour = grey75K, 
-                 alpha = 0.1) +
+                 alpha = alpha_SE) +
     geom_segment(aes(x = avg, xend = lagged, y = region, yend = region), 
-                 size = 0.5,
+                 size = size_between,
                  alpha = 1,
                  colour = grey75K,
                  data = df %>% filter(urban == 'urban')) +
@@ -524,13 +527,14 @@ ur_pairGrid = function(df,
     # -- Region average --
     geom_point(aes(x = region_avg),
                size = 2.5, 
-               colour = grey90K, fill = grey75K,
+               colour = 'white', fill = grey75K,
                shape = 21,
                data = df %>% filter(urban == 'urban')) +
-    geom_text(aes(label = N), 
-              nudge_x = 0.05,
-              family = 'Lato Light',
-              size = 2.5, colour = grey90K) +
+    # -- N --
+    # geom_text(aes(label = N), 
+              # nudge_x = 0.05,
+              # family = 'Lato Light',
+              # size = 2.5, colour = grey90K) +
     geom_text(aes(label = llamar::percent(avg, ndigits = 0),
                   colour = avg), 
               nudge_y = 0.2,
@@ -548,8 +552,11 @@ ur_pairGrid = function(df,
                          limits = fill_limits) + 
     scale_colour_gradientn(colours = brewer.pal(9, fill_scale), 
                            limits = fill_limits) + 
-    scale_x_continuous(labels = scales::percent) +
-    theme_xgrid()
+    scale_x_continuous(labels = scales::percent, 
+                       limits = c(0, 0.8)) +
+    theme_xgrid() +
+    theme(axis.text.y = element_text(size = 14),
+          axis.title.x = element_blank())
   
   # -- Save the main plot --
   if (savePlots){

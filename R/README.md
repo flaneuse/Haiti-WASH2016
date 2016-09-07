@@ -77,7 +77,7 @@ All maps and visualizations:
 * Group raster slices
 * Clip image to Admin0 polygon
 * Apply "multiply" transparency to raster layer (100% transparency)
-* Apply drop shaadow to the entire raster layer (clipping mask + raster): 90% K, x = 0.02 in., y = 0.02 in., blur = 0.02 in.
+* Apply drop shaadow to the entire raster layer (clipping mask + raster): 75% multiply, 90% K, x = 0.02 in., y = 0.02 in., blur = 0.02 in.
 * nudge; bounding box at x = 0.0014", y = 0.126"
 
 #### Choropleths
@@ -85,3 +85,8 @@ All maps and visualizations:
 
 #### Export to .pdf
 * AI preset High Quality Print with "PDF/X-4:2010" (under "standard")
+
+#### Dot plots
+* Symbol strokes to 0.25"
+* Apply drop shaadow to the shapes: 75% multiply, 90% K, x = 0.01 in., y = 0.01 in., blur = 0.01 in.
+* round corners of square 0.02"
