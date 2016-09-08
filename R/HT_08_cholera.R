@@ -58,9 +58,9 @@ cholera = cholera %>%
 
 cholera = cholera %>% 
   # Encode Category based on 2016 UNICEF classification
-  mutate(prevalence2016 = case_when(cholera$response == 'C' ~ 3, 
+  mutate(prevalence2016 = case_when(cholera$response == 'C' ~ 1, 
                                     cholera$response == 'B' ~ 2, 
-                                    cholera$response == 'A' ~ 1,
+                                    cholera$response == 'A' ~ 3,
                                     TRUE ~ NA_real_),
          prevalence2014 = ifelse(Priority == 'Phase 1', 2,
                                  ifelse(Priority == 'Phase 2', 1, NA)),
