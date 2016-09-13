@@ -136,10 +136,19 @@ water_admin2 = left_join(water_admin2, water_admin1_sum, by = 'admin1')
 # Resort order of admin1 based on the admin1 averages.  Best (most improved toilet) == top.
 water_admin2$admin1 = factor(water_admin2$admin1, levels = water_admin1$admin1)
 
+# -- By Admin3 --
+water_admin3 = calcPtEst('impr_water_under30min', by_var = 'admin3', design = DHSdesign, df = hh)
+
 
 # Admin2 dot plot ---------------------------------------------------------
 
 pairGrid(water_admin2, savePlots = F, y_var = 'admin2')
+
+
+# Admin 3 dot plot --------------------------------------------------------
+
+pairGrid_admin3(water_admin3, savePlots = F, y_var = 'admin3', 
+         facet_var = NA, incl_comparison = FALSE, fill_limits = colour_limits)
 
 # Admin1 map --------------------------------------------------------------
 haiti_polygons = right_join(water_admin1_PaP, dhs_geo$df, by = c('region_name' = 'DHSREGFR'))

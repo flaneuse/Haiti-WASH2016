@@ -143,6 +143,8 @@ toilet_admin2$admin1 = factor(toilet_admin2$admin1, levels = toilet_admin1$admin
 # Weights have no effect on EAs, but useful way to summarise by EA
 toilet_ea = calcPtEst('improved_toilet', by_var = 'cluster_id', design = DHSdesign, df = hh)
 
+# -- By Admin3 (communes) --
+toilet_admin3 = calcPtEst('improved_toilet', by_var = 'admin3', design = DHSdesign, df = hh)
 
 # Admin1 map --------------------------------------------------------------
 # NOTE!!!! Keep track of this, cuz it'll save you HOURS of debugging.
@@ -213,6 +215,7 @@ plotMap(haiti_polygons,
         exportPlot = TRUE,
         fileName = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_imprtoilet_adm2.pdf')
 
+
 # -- dot plot --
 pairGrid(toilet_admin2, 
          y_var = 'admin2',
@@ -264,3 +267,7 @@ p = ur_pairGrid(urb_rural_toilet, size_SE = 2,
                 file_name = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_UR_toilets.pdf') 
 
 
+# Admin 3 dot plot --------------------------------------------------------
+
+pairGrid_admin3(toilet_admin3, savePlots = FALSE, y_var = 'admin3', 
+         colorDot = colour_toilet, fill_limits = colour_limits) + geom_vline(xintercept  = 0.27558)
