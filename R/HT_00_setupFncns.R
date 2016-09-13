@@ -497,6 +497,125 @@ pairGrid = function (df,
   
 }
 
+# Dot plot - admin 3 ----------------------------------------------------------------
+
+pairGrid_admin3 = function (df,
+                     # Variable names within df
+                     y_var = 'region_name', # string for the y variable
+                     avg_var = 'avg', # string for average point
+                     lb_var = 'lb', # string for lower bound of CI
+                     ub_var = 'ub', # string for upper bound of CI
+                     # Percent labels
+                     sizePct = 2,
+                     label_offset = 0.01,
+                     # Average point
+                     sizeDot = 2.5,
+                     stroke_colour = grey90K,
+                     colorDot = 'YlGnBu',
+                     fill_limits = c(0,1),
+                     # S.E. bars
+                     colorSE = grey20K,
+                     alphaSE = 1,
+                     size_SE = 1,
+                     # Comparison for average
+                     incl_comparison = TRUE,
+                     comp_avg = 'admin1_avg',
+                     comp_lb = 'admin1_lb',
+                     comp_ub = 'admin1_ub',
+                     alpha_comp = 0.3,
+                     fill_comp = grey30K,
+                     colour_comp = grey70K,
+                     stroke_comp = 0.25,
+                     # Facet var
+                     facet_var = 'admin1',
+                     n_col = 1,
+                     # Title
+                     title = NA,
+                     # Save files
+                     savePlots = TRUE,
+                     file_name = 'plot.pdf',
+                     width_plot = 5, height_plot = 10
+) {
+  star = '*'
+  
+  # -- Reorder the dots --
+  df = df %>% 
+    # Remove any NA values
+    ungroup() %>% 
+    filter_(paste0('!is.na(', y_var, ')')) %>% 
+    arrange_(paste0(avg_var))
+  
+  df[[y_var]] = factor(df[[y_var]], levels = df[[y_var]])
+  
+  # Set limits for the comparison values
+  y_min = 0
+  y_max = 8
+  
+  
+  # -- General plot --
+  p = ggplot() +
+    # Error bars
+    # Can't use geom_pointrange b/c want to independently control colors of fills.
+    geom_segment(aes_string(x = lb_var, xend = ub_var, y = y_var, yend = y_var),
+                 data = df,
+                 colour = colorSE, size = size_SE) +
+    
+    # Average point
+    geom_point(aes_string(x = avg_var, y = y_var, 
+                          fill = avg_var),
+               data = df,
+               size = sizeDot,
+               shape = 21,
+               colour = stroke_colour) +
+    geom_text(aes_string(x = avg_var, y = y_var,
+                         label = 'star'),
+              size = sizePct * 2.5,
+              vjust = 1,
+              colour = grey60K,
+              data = df %>% filter(N < 50),
+              nudge_x = label_offset) +
+    geom_text(aes_string(x = -0.1, y = y_var,
+                         label = 'N'),
+              size = sizePct,
+              colour = grey60K,
+              data = df,
+              nudge_x = label_offset) +
+    # Color dots
+    scale_fill_gradientn(colours = brewer.pal(9, colorDot),
+                         limits = fill_limits) +
+    scale_colour_gradientn(colours = brewer.pal(9, colorDot),
+                           limits = fill_limits) +
+    # Convert to percentages
+    scale_x_continuous(labels = scales::percent) +
+    # coord_flip() +
+    theme_xgrid() +
+    theme(axis.title.x = element_blank(),
+          axis.text.y = element_text(size = 8), 
+          strip.text = element_text(size = 9, family = font_normal, colour = grey75K))
+  
+
+  # -- Add title --
+  if(!is.na(title)) {
+    p = p +
+      ggtitle(title)
+  }
+  
+  # -- Save the main plot --
+  if (savePlots){
+    ggsave(file_name, 
+           plot = p,
+           width = width_plot, height = height_plot,
+           bg = 'transparent',
+           paper = 'special',
+           units = 'in',
+           useDingbats=FALSE,
+           compress = FALSE,
+           dpi = 300)
+  }
+  
+  return(p)
+  
+}
 
 
 
