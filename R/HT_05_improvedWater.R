@@ -112,7 +112,8 @@ summary(DHSdesign)
 
 
 # Apply sampling weights --------------------------------------------------
-
+# -- National-level stats (sans camps) --
+water_natl = svymean(~impr_water_under30min, DHSdesign, na.rm = TRUE)
 
 # Double-checking can replicate DHS numbers
 # Off by ~ 0.1% because I removed NAs.  Otherwise, seems to check out.
@@ -147,8 +148,19 @@ pairGrid(water_admin2, savePlots = F, y_var = 'admin2')
 
 # Admin 3 dot plot --------------------------------------------------------
 
-pairGrid_admin3(water_admin3, savePlots = F, y_var = 'admin3', 
-         facet_var = NA, incl_comparison = FALSE, fill_limits = colour_limits)
+
+pairGrid_admin3(water_admin3, savePlots = FALSE, y_var = 'admin3', 
+                colorDot = colour_water, fill_limits = colour_limits) + 
+  geom_vline(xintercept  = water_natl[1], size = 0.25, colour = grey90K) +
+  annotate(geom = 'text', x = 0.25, y = 15, label = 'country average', 
+           colour = grey90K,
+           family = 'Lato Light')
+
+ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_water_dotAdm3.pdf', 
+       width = 10.75, height = 10, units = "in",
+       bg = "transparent", 
+       scale = (8.9555/8.1219),
+       paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
 
 # Admin1 map --------------------------------------------------------------
 haiti_polygons = right_join(water_admin1_PaP, dhs_geo$df, by = c('region_name' = 'DHSREGFR'))
@@ -260,3 +272,13 @@ ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/ex
        bg = "transparent", 
        scale = (8.9555/8.1219),
        paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
+
+
+# Admin3 counts -----------------------------------------------------------
+
+water_admin3_cts = hh %>%  
+  filter(!is.na(impr_water_under30min)) %>% 
+  group_by(admin3) %>%  summarise(`households with improved sanitation` = sum(impr_water_under30min, na.rm = TRUE), 
+                                  `total number of households` = n()) 
+
+write.csv(water_admin3_cts, '~/Documents/USAID/Haiti/dataout/imprwater_admin3.csv')

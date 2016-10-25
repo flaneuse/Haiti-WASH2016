@@ -556,9 +556,9 @@ pairGrid_admin3 = function (df,
   p = ggplot() +
     # Error bars
     # Can't use geom_pointrange b/c want to independently control colors of fills.
-    geom_segment(aes_string(x = lb_var, xend = ub_var, y = y_var, yend = y_var),
-                 data = df,
-                 colour = colorSE, size = size_SE) +
+    # geom_segment(aes_string(x = lb_var, xend = ub_var, y = y_var, yend = y_var),
+                 # data = df,
+                 # colour = colorSE, size = size_SE) +
     
     # Average point
     geom_point(aes_string(x = avg_var, y = y_var, 
@@ -567,13 +567,13 @@ pairGrid_admin3 = function (df,
                size = sizeDot,
                shape = 21,
                colour = stroke_colour) +
-    geom_text(aes_string(x = avg_var, y = y_var,
-                         label = 'star'),
-              size = sizePct * 2.5,
-              vjust = 1,
-              colour = grey60K,
-              data = df %>% filter(N < 50),
-              nudge_x = label_offset) +
+    # geom_text(aes_string(x = avg_var, y = y_var,
+    #                      label = 'star'),
+    #           size = sizePct * 2.5,
+    #           vjust = 1,
+    #           colour = grey60K,
+    #           data = df %>% filter(N < 50),
+    #           nudge_x = label_offset) +
     geom_text(aes_string(x = -0.1, y = y_var,
                          label = 'N'),
               size = sizePct,

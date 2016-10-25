@@ -270,4 +270,24 @@ p = ur_pairGrid(urb_rural_toilet, size_SE = 2,
 # Admin 3 dot plot --------------------------------------------------------
 
 pairGrid_admin3(toilet_admin3, savePlots = FALSE, y_var = 'admin3', 
-         colorDot = colour_toilet, fill_limits = colour_limits) + geom_vline(xintercept  = 0.27558)
+         colorDot = colour_toilet, fill_limits = colour_limits) + 
+  geom_vline(xintercept  = toilet_natl[1], size = 0.25, colour = grey90K) +
+  annotate(geom = 'text', x = 0.25, y = 15, label = 'country average', 
+           colour = grey90K,
+           family = 'Lato Light')
+
+ggsave(filename = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_toilet_dotAdm3.pdf', 
+       width = 10.75, height = 10, units = "in",
+       bg = "transparent", 
+       scale = (8.9555/8.1219),
+       paper = "special", useDingbats = FALSE, compress = FALSE, dpi = 300)
+
+
+# Admin3 counts -----------------------------------------------------------
+
+toilet_admin3_cts = hh %>%  
+  filter(!is.na(improved_toilet)) %>% 
+  group_by(admin3) %>%  summarise(`households with improved sanitation` = sum(improved_toilet, na.rm = TRUE), 
+                                        `total number of households` = n()) 
+
+write.csv(toilet_admin3_cts, '~/Documents/USAID/Haiti/dataout/imprtoilets_admin3.csv')
