@@ -231,7 +231,7 @@ urb_rural_imprwater$region = factor(urb_rural_imprwater$region, c(ur_order_h2o$r
 
 
 p = ur_pairGrid(urb_rural_imprwater, fill_scale = 'YlGnBu', fill_limits = colour_limits,
-            file_name = '~/Creative Cloud Files/MAV/Projects/Haiti_WASH-PAD_2016-09/exported_R/HTI_UR_water30.pdf')
+            file_name = '~/Creative Cloud Files/MAV/Projects/HTI_WASH-PAD_2016-09/exported_R/HTI_UR_water30.pdf')
 
 # export color bars -------------------------------------------------------
 p + theme(legend.position = 'right', legend.direction = 'horizontal',

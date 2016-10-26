@@ -672,7 +672,7 @@ ur_pairGrid = function(df,
     scale_colour_gradientn(colours = brewer.pal(9, fill_scale), 
                            limits = fill_limits) + 
     scale_x_continuous(labels = scales::percent, 
-                       limits = c(0, 0.8)) +
+                       limits = c(0, 0.95)) +
     theme_xgrid() +
     theme(axis.text.y = element_text(size = 14),
           axis.title.x = element_blank())
