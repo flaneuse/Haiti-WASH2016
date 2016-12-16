@@ -67,7 +67,7 @@ All maps and visualizations:
 
 ### Adobe Illustrator cleanup of maps
 #### Basemap
-* Apply blue border with Gaussian blur to Hispaniola to simulate water (9 pt., 40 px. blur, #89a3d1)
+* Apply blue border with Gaussian blur to Hispaniola to simulate water (9 pt., 40 px. blur, #89a3d1); background #f6f8fb
 * Apply white border (25 pt) along edge of bounding box with 30 px. Gaussian blur
 * Country outline: 0.25 pt. 90% K
 * Admin1 boundaries: 0.5 pt. #ffffff
